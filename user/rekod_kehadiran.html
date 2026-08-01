@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekod Kehadiran Pengguna | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/rekod_kehadiran.css">
+  <style>
+    .hide-element { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">User</span>
+      </div>
+    </div>
+  </div>  
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item"><i class="ti ti-layout-dashboard"></i>Laman Utama</a>
+    <a href="rekod_kehadiran.html" class="nav-item active"><i class="ti ti-clipboard-check"></i> Rekod Kehadiran</a>
+    <a href="penyata.html" class="nav-item"><i class="ti ti-file-analytics"></i> Penyata</a>
+    <a href="direktori.html" class="nav-item"><i class="ti ti-users"></i> Direktori</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+       Pengguna
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">PENGGUNA (USER)</div>
+      <h1>Rekod Kehadiran</h1>
+    </div>
+  </div>
+
+  <div id="success-msg" class="success-msg" style="display:none;"></div>
+
+  <!-- DATE BAR -->
+  <div class="date-bar">
+    <span>Kehadiran Hari Ini</span>
+    <span id="tarikh-display-text"></span>
+  </div>
+
+  <!-- SEARCH & FILTER -->
+  <form id="filter-form" class="filter-bar" onsubmit="event.preventDefault(); renderKehadiran();">
+    <input type="text" id="search-input" class="filter-input" placeholder=" Cari nama, pangkat, no. tentera, jawatan..." />
+    <select id="bahagian-filter" class="filter-select">
+      <option value="">Semua Bahagian</option>
+      <option value="MARKAS">MARKAS</option>
+      <option value="TADBIR">TADBIR</option>
+      <option value="BLK">BLK</option>
+      <option value="BBK">BBK</option>
+      <option value="PNPL">PNPL</option>
+      <option value="AWAM">AWAM</option>
+    </select>
+    <button type="submit" class="btn-search">Cari</button>
+    <button type="button" class="btn-reset" onclick="resetFilter()">Reset</button>
+  </form>
+
+  <div id="tables-container">
+    <!-- Tables per section rendered dynamically -->
+  </div>
+
+</div>
+
+<!-- MODAL TIDAK HADIR -->
+<div class="modal-overlay" id="modal-tidak-hadir">
+  <div class="modal">
+    <h2> Rekod Tidak Hadir</h2>
+    <p id="modal-nama" class="modal-nama-text"></p>
+    <form id="form-tidak-hadir">
+      <input type="hidden" id="modal-anggota-id">
+
+      <div class="field">
+        <label>Lokasi Anggota</label>
+        <select id="modal-lokasi" required onchange="toggleSebab(this.value)">
+          <option value="">-- Pilih Lokasi --</option>
+          <option value="luar_pasukan">Luar Pasukan</option>
+          <option value="dalam_pasukan">Dalam Pasukan (Tidak Berbaris)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Sebab</label>
+        <select id="modal-sebab" required onchange="checkSebabLain(this)">
+          <option value="">Pilih Sebab</option>
+          <optgroup label="Luar Pasukan" id="opt-luar">
+            <option value="Cuti">Cuti</option>
+            <option value="Kursus">Kursus</option>
+            <option value="Sakit">Sakit/Rawatan Hospital</option>
+            <option value="Tugas Luar">Tugas Luar</option>
+            <option value="Lain-lain">Lain-lain</option>
+          </optgroup>
+            
+          <optgroup label="Dalam Pasukan" id="opt-dalam" class="hide-element">
+            <option value="Pegawai Bertugas">Pegawai/PTTK/PTTR Bertugas</option>
+            <option value="Attend C">Attend C</option>
+            <option value="Lain-lain">Lain-lain</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="field" id="field-sebab-lain" style="display: none; margin-top: 10px;">
+        <label>Nyatakan Sebab Lain-lain</label>
+        <input type="text" id="input-sebab-lain" placeholder="Nyatakan sebab..." />
+      </div>
+
+      <div class="field">
+        <label>Tarikh Mula</label>
+        <input type="date" id="modal-tarikh-mula" required />
+      </div>
+
+      <div class="field">
+        <label>Tarikh Tamat</label>
+        <input type="date" id="modal-tarikh-tamat" required />
+      </div>
+
+      <div class="field">
+        <label>Catatan Tambahan</label>
+        <textarea id="modal-catatan" rows="3" placeholder="Catatan tambahan (jika ada)..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tidak-hadir').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['user']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  const susunanPangkat = {
+    'Jeneral': 1, 'Leftenan Jeneral': 2, 'Mejar Jeneral': 3, 'Brigedier Jeneral': 4,
+    'Kolonel': 5, 'Leftenan Kolonel': 6, 'Mejar': 7, 'Kapten': 8, 'Leftenan': 9,
+    'Leftenan Muda': 10, 'Pegawai Waran I': 11, 'Pegawai Waran II': 12, 'Staf Sarjan': 13,
+    'Sarjan': 14, 'Koperal': 15, 'Lans Koperal': 16, 'Prebet': 17
+  };
+
+  const jawatanTidakBerbaris = ['KOMANDAN', 'TIMBALAN KOMANDAN', 'PEGAWAI MEMERINTAH'];
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const now = new Date();
+  document.getElementById('tarikh-display-text').textContent = now.toLocaleDateString('ms-MY', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+  function showNotification(msg) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+
+  function resetFilter() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('bahagian-filter').value = '';
+    renderKehadiran();
+  }
+
+  function markHadir(anggotaId) {
+    let kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []);
+    let catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    let keh = kehadiranList.find(k => k.anggota_id === anggotaId && k.tarikh === todayStr);
+    if (keh) {
+      keh.status = 'hadir';
+      keh.dikemaskini_oleh = currentUser.id;
+      catatanList = catatanList.filter(c => c.kehadiran_id !== keh.id);
+    } else {
+      keh = {
+        id: Store.getNextId(STORAGE_KEYS.KEHADIRAN),
+        anggota_id: anggotaId,
+        tarikh: todayStr,
+        status: 'hadir',
+        dikemaskini_oleh: currentUser.id
+      };
+      kehadiranList.push(keh);
+    }
+
+    Store.set(STORAGE_KEYS.KEHADIRAN, kehadiranList);
+    Store.set(STORAGE_KEYS.CATATAN_TIDAK_HADIR, catatanList);
+    Store.addLog(currentUser.id, 'Rekod Kehadiran (User)', `ID: ${anggotaId} | Hadir`);
+
+    showNotification('✅ Kehadiran berjaya direkodkan.');
+    renderKehadiran();
+  }
+
+  function bukaTidakHadir(id, nama, pangkat) {
+    document.getElementById('modal-anggota-id').value = id;
+    document.getElementById('modal-nama').textContent = (pangkat ? pangkat + ' ' : '') + nama;
+    document.getElementById('modal-lokasi').value = '';
+    document.getElementById('modal-sebab').value = '';
+    document.getElementById('modal-tarikh-mula').value = todayStr;
+    document.getElementById('modal-tarikh-tamat').value = todayStr;
+    document.getElementById('modal-catatan').value = '';
+    toggleSebab('');
+    document.getElementById('modal-tidak-hadir').classList.add('show');
+  }
+
+  function toggleSebab(lokasi) {
+    const optLuar = document.getElementById('opt-luar');
+    const optDalam = document.getElementById('opt-dalam');
+    document.getElementById('modal-sebab').value = '';
+    checkSebabLain(document.getElementById('modal-sebab'));
+
+    if (lokasi === 'dalam_pasukan') {
+      optLuar.classList.add('hide-element');
+      optDalam.classList.remove('hide-element');
+    } else {
+      optLuar.classList.remove('hide-element');
+      optDalam.classList.add('hide-element');
+    }
+  }
+
+  function checkSebabLain(selectElement) {
+    const fieldLain = document.getElementById('field-sebab-lain');
+    const inputLain = document.getElementById('input-sebab-lain');
+    if (selectElement.value === 'Lain-lain') {
+      fieldLain.style.display = 'block';
+      inputLain.setAttribute('required', 'required');
+    } else {
+      fieldLain.style.display = 'none';
+      inputLain.removeAttribute('required');
+      inputLain.value = '';
+    }
+  }
+
+  document.getElementById('form-tidak-hadir').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const anggotaId = parseInt(document.getElementById('modal-anggota-id').value);
+    const lokasi = document.getElementById('modal-lokasi').value;
+    let sebab = document.getElementById('modal-sebab').value;
+    if (sebab === 'Lain-lain') {
+      sebab = document.getElementById('input-sebab-lain').value.trim();
+    }
+    const tarikhMula = document.getElementById('modal-tarikh-mula').value;
+    const tarikhTamat = document.getElementById('modal-tarikh-tamat').value;
+    const catatan = document.getElementById('modal-catatan').value.trim();
+
+    let kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []);
+    let catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    let keh = kehadiranList.find(k => k.anggota_id === anggotaId && k.tarikh === todayStr);
+    let kehId;
+
+    if (keh) {
+      keh.status = 'tidak_hadir';
+      keh.dikemaskini_oleh = currentUser.id;
+      kehId = keh.id;
+
+      let cat = catatanList.find(c => c.kehadiran_id === kehId);
+      if (cat) {
+        cat.sebab = sebab;
+        cat.lokasi = lokasi;
+        cat.tarikh_mula = tarikhMula;
+        cat.tarikh_tamat = tarikhTamat;
+        cat.catatan = catatan;
+      } else {
+        catatanList.push({ id: Store.getNextId(STORAGE_KEYS.CATATAN_TIDAK_HADIR), kehadiran_id: kehId, sebab, lokasi, tarikh_mula: tarikhMula, tarikh_tamat: tarikhTamat, catatan });
+      }
+    } else {
+      kehId = Store.getNextId(STORAGE_KEYS.KEHADIRAN);
+      kehadiranList.push({ id: kehId, anggota_id: anggotaId, tarikh: todayStr, status: 'tidak_hadir', dikemaskini_oleh: currentUser.id });
+      catatanList.push({ id: Store.getNextId(STORAGE_KEYS.CATATAN_TIDAK_HADIR), kehadiran_id: kehId, sebab, lokasi, tarikh_mula: tarikhMula, tarikh_tamat: tarikhTamat, catatan });
+    }
+
+    let penyataRows = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+    const exists = penyataRows.some(r => r.nama_row.toLowerCase() === sebab.toLowerCase() && r.kategori === lokasi);
+    if (!exists) {
+      penyataRows.push({ id: Store.getNextId(STORAGE_KEYS.PENYATA_ROW), kategori: lokasi, nama_row: sebab });
+      Store.set(STORAGE_KEYS.PENYATA_ROW, penyataRows);
+    }
+
+    Store.set(STORAGE_KEYS.KEHADIRAN, kehadiranList);
+    Store.set(STORAGE_KEYS.CATATAN_TIDAK_HADIR, catatanList);
+    Store.addLog(currentUser.id, 'Rekod Kehadiran (User)', `ID: ${anggotaId} | Tidak Berbaris | ${lokasi} | ${sebab}`);
+
+    document.getElementById('modal-tidak-hadir').classList.remove('show');
+    showNotification('✅ Ketidakhadiran berjaya direkodkan.');
+    renderKehadiran();
+  });
+
+  function renderKehadiran() {
+    const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+    const filterBah = document.getElementById('bahagian-filter').value;
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []).filter(a => a.status === 'aktif');
+    const kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []).filter(k => k.tarikh === todayStr);
+    const catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    let filtered = anggotaList.filter(a => {
+      if (filterBah && a.bahagian !== filterBah) return false;
+      if (searchVal) {
+        const matchName = (a.nama || '').toLowerCase().includes(searchVal);
+        const matchRank = (a.pangkat || '').toLowerCase().includes(searchVal);
+        const matchNo = (a.no_anggota || '').toLowerCase().includes(searchVal);
+        const matchJawatan = (a.jawatan || '').toLowerCase().includes(searchVal);
+        return matchName || matchRank || matchNo || matchJawatan;
+      }
+      return true;
+    });
+
+    filtered.forEach(a => {
+      const keh = kehadiranList.find(k => k.anggota_id === a.id);
+      if (keh) {
+        a.status_hadir = keh.status;
+        const cat = catatanList.find(c => c.kehadiran_id === keh.id);
+        if (cat) {
+          a.sebab = cat.sebab;
+          a.lokasi = cat.lokasi;
+        }
+      } else {
+        a.status_hadir = null;
+      }
+    });
+
+    filtered.sort((a, b) => {
+      const ra = susunanPangkat[a.pangkat] || 99;
+      const rb = susunanPangkat[b.pangkat] || 99;
+      if (ra !== rb) return ra - rb;
+      return a.nama.localeCompare(b.nama);
+    });
+
+    const bahagianOrder = ['MARKAS', 'TADBIR', 'BLK', 'BBK', 'PNPL', 'AWAM'];
+    const grouped = {};
+    filtered.forEach(a => {
+      if (!grouped[a.bahagian]) grouped[a.bahagian] = [];
+      grouped[a.bahagian].push(a);
+    });
+
+    const container = document.getElementById('tables-container');
+    container.innerHTML = '';
+
+    let hasAny = false;
+    bahagianOrder.forEach(bah => {
+      if (grouped[bah] && grouped[bah].length > 0) {
+        hasAny = true;
+        const list = grouped[bah];
+
+        let barisCount = 0, dalamCount = 0, luarCount = 0;
+        list.forEach(item => {
+          if (item.status_hadir === 'hadir') barisCount++;
+          else if (item.status_hadir === 'tidak_hadir' && item.lokasi === 'dalam_pasukan') dalamCount++;
+          else if (item.status_hadir === 'tidak_hadir' && item.lokasi === 'luar_pasukan') luarCount++;
+        });
+
+        const card = document.createElement('div');
+        card.className = 'table-card';
+
+        let rowsHtml = '';
+        list.forEach((ang, index) => {
+          const jawatanUpper = (ang.jawatan || '').trim().toUpperCase();
+          const isTidakBerbaris = jawatanTidakBerbaris.includes(jawatanUpper);
+
+          let statusSpan = '<span class="status-belum">— Belum Direkod</span>';
+          if (ang.status_hadir === 'hadir') statusSpan = '<span class="status-hadir">Berbaris</span>';
+          else if (ang.status_hadir === 'tidak_hadir') statusSpan = '<span class="status-tidak-hadir">Tidak Hadir</span>';
+
+          let lokasiSpan = '<span class="empty-dash">—</span>';
+          if (ang.lokasi === 'dalam_pasukan') lokasiSpan = '<span class="badge-dalam">Dalam</span>';
+          else if (ang.lokasi === 'luar_pasukan') lokasiSpan = '<span class="badge-luar">Luar</span>';
+
+          let aksiContent = '';
+          if (isTidakBerbaris) {
+            aksiContent = '<span class="label-tidak-berbaris">Tidak Berbaris</span>';
+          } else {
+            const escapeNama = (ang.nama || '').replace(/'/g, "\\'");
+            const escapePangkat = (ang.pangkat || '').replace(/'/g, "\\'");
+            aksiContent = `
+              <div class="action-btn-group">
+                <button type="button" class="btn-hadir" onclick="markHadir(${ang.id})">Berbaris</button>
+                <button type="button" class="btn-tidak-hadir" onclick="bukaTidakHadir(${ang.id}, '${escapeNama}', '${escapePangkat}')">Tidak Hadir</button>
+              </div>
+            `;
+          }
+
+          rowsHtml += `
+            <tr>
+              <td class="bil-text">${index + 1}</td>
+              <td>
+                <div class="nama-text">${ang.nama}</div>
+                ${ang.pangkat ? `<div class="pangkat-text">${ang.pangkat}</div>` : ''}
+              </td>
+              <td class="no-anggota-text">${ang.no_anggota}</td>
+              <td class="jawatan-text">${ang.jawatan || '-'}</td>
+              <td>${statusSpan}</td>
+              <td>${lokasiSpan}</td>
+              <td>${aksiContent}</td>
+            </tr>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="table-card-header">
+            <h2>${bah} <span class="count-label">(${list.length} anggota)</span></h2>
+            <div class="badge-group">
+              <span class="badge-stat badge-berbaris"> ${barisCount} berbaris</span>
+              ${dalamCount > 0 ? `<span class="badge-stat badge-dalam-stat"> ${dalamCount} dalam</span>` : ''}
+              ${luarCount > 0 ? `<span class="badge-stat badge-luar-stat"> ${luarCount} luar</span>` : ''}
+            </div>
+          </div>
+          <table>
+            <colgroup>
+              <col class="col-bil">
+              <col class="col-nama">
+              <col class="col-no">
+              <col class="col-jawatan">
+              <col class="col-status">
+              <col class="col-lokasi">
+              <col class="col-aksi">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="th-center">BIL</th>
+                <th>PANGKAT & NAMA</th>
+                <th>NO. TENTERA</th>
+                <th>JAWATAN</th>
+                <th>STATUS</th>
+                <th>LOKASI</th>
+                <th>AKSI</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(card);
+      }
+    });
+
+    if (!hasAny) {
+      container.innerHTML = `
+        <div class="table-card">
+          <div class="empty-msg" style="text-align:center; padding:2rem; color:#888;">Tiada anggota dijumpai.</div>
+        </div>
+      `;
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.getElementById('modal-tidak-hadir').classList.remove('show');
+  });
+
+  renderKehadiran();
+</script>
+
+</body>
+</html>

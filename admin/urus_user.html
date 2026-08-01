@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> TETAPAN PENGGUNA | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/urus_user.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<div class="sidebar-header">
+  <div class="sidebar-logo-wrap">
+    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+    <div class="sidebar-logo-text">
+      <span class="sidebar-logo-title">E-ALK</span>
+      <span class="sidebar-logo-sub">Admin</span>
+    </div>
+  </div>
+</div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+    <a href="urus_user.html" class="nav-item active">
+      <i class="ti ti-user-cog"></i> Tetapan Pengguna
+    </a>
+    <a href="log_aktiviti.html" class="nav-item">
+      <i class="ti ti-history"></i> Log Aktiviti
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Pentadbir Sistem
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Admin</div>
+      <h1>TETAPAN PENGGUNA</h1>
+    </div>
+    <button class="btn-primary" onclick="document.getElementById('modal-tambah').classList.add('show')">
+      + Tambah User
+    </button>
+  </div>
+
+  <div id="error-msg" class="error-msg" style="display:none;"></div>
+  <div id="success-msg" class="success-msg" style="display:none;"></div>
+
+  <!-- REQUEST RESET PASSWORD -->
+  <div id="request-reset-card" class="table-card" style="display:none;">
+    <div class="table-card-header">
+      <h2>Permintaan Reset Password (<span id="request-count">0</span>)</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Username</th>
+          <th>Tarikh Request</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="request-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SENARAI USER -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Senarai Pengguna</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Bahagian</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="user-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- MODAL TAMBAH USER -->
+<div class="modal-overlay" id="modal-tambah">
+  <div class="modal">
+    <h2>➕ Tambah User Baru</h2>
+    <form id="form-tambah-user">
+      <div class="field">
+        <label>Nama Penuh</label>
+        <input type="text" id="tambah-nama" placeholder="Nama penuh..." required />
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="tambah-username" placeholder="Username..." required />
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="tambah-role" required>
+          <option value="">-- Pilih Role --</option>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+          <option value="viewer">Viewer</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bahagian</label>
+        <select id="tambah-bahagian" required>
+          <option value="">-- Pilih Bahagian --</option>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tambah').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDIT USER -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <h2>Edit User</h2>
+    <form id="form-edit-user">
+      <input type="hidden" id="edit-id">
+      <div class="field">
+        <label>Nama Penuh</label>
+        <input type="text" id="edit-nama" required />
+      </div>
+      <div class="field">
+        <label>Role</label>
+        <select id="edit-role" required>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+          <option value="viewer">Viewer</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Bahagian</label>
+        <select id="edit-bahagian" required>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-edit').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Kemaskini</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['admin']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  function showMessage(type, text) {
+    const errorEl = document.getElementById('error-msg');
+    const successEl = document.getElementById('success-msg');
+    if (type === 'error') {
+      errorEl.innerHTML = text;
+      errorEl.style.display = 'block';
+      setTimeout(() => { errorEl.style.display = 'none'; }, 6000);
+    } else {
+      successEl.innerHTML = text;
+      successEl.style.display = 'block';
+      setTimeout(() => { successEl.style.display = 'none'; }, 6000);
+    }
+  }
+
+  function generateRandomPassword() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  // Handle Add User
+  document.getElementById('form-tambah-user').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('tambah-nama').value.trim();
+    const username = document.getElementById('tambah-username').value.trim();
+    const role = document.getElementById('tambah-role').value;
+    const bahagian = document.getElementById('tambah-bahagian').value;
+
+    const users = Store.get(STORAGE_KEYS.USERS, []);
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+      showMessage('error', `❌ Username '${username}' sudah digunakan.`);
+      return;
+    }
+
+    const rawPass = generateRandomPassword();
+    const newUser = {
+      id: Store.getNextId(STORAGE_KEYS.USERS),
+      nama,
+      username,
+      role,
+      bahagian,
+      password: rawPass,
+      first_login: 1,
+      created_at: new Date().toISOString()
+    };
+
+    users.unshift(newUser);
+    Store.set(STORAGE_KEYS.USERS, users);
+    Store.addLog(currentUser.id, 'Tambah User', `Username: ${username} | Role: ${role} | Bahagian: ${bahagian}`);
+
+    document.getElementById('modal-tambah').classList.remove('show');
+    document.getElementById('form-tambah-user').reset();
+    showMessage('success', `✅ User '${username}' berjaya ditambah! Password: <strong>${rawPass}</strong> — Sila maklumkan kepada user.`);
+    renderUsers();
+  });
+
+  function bukaEdit(id) {
+    const users = Store.get(STORAGE_KEYS.USERS, []);
+    const u = users.find(user => user.id === id);
+    if (!u) return;
+
+    document.getElementById('edit-id').value = u.id;
+    document.getElementById('edit-nama').value = u.nama;
+    document.getElementById('edit-role').value = u.role;
+    document.getElementById('edit-bahagian').value = u.bahagian;
+    document.getElementById('modal-edit').classList.add('show');
+  }
+
+  document.getElementById('form-edit-user').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-id').value);
+    const nama = document.getElementById('edit-nama').value.trim();
+    const role = document.getElementById('edit-role').value;
+    const bahagian = document.getElementById('edit-bahagian').value;
+
+    const users = Store.get(STORAGE_KEYS.USERS, []);
+    const u = users.find(user => user.id === id);
+    if (u) {
+      u.nama = nama;
+      u.role = role;
+      u.bahagian = bahagian;
+      Store.set(STORAGE_KEYS.USERS, users);
+      Store.addLog(currentUser.id, 'Edit User', `User ID: ${id} | Nama: ${nama} | Role: ${role}`);
+      document.getElementById('modal-edit').classList.remove('show');
+      showMessage('success', '✅ Maklumat user berjaya dikemaskini.');
+      renderUsers();
+    }
+  });
+
+  function resetPassword(id, username) {
+    if (confirm(`Reset password untuk ${username}?`)) {
+      const users = Store.get(STORAGE_KEYS.USERS, []);
+      const u = users.find(user => user.id === id);
+      if (u) {
+        const rawPass = generateRandomPassword();
+        u.password = rawPass;
+        u.first_login = 1;
+        Store.set(STORAGE_KEYS.USERS, users);
+        Store.addLog(currentUser.id, 'Reset Password', `Username: ${username}`);
+        showMessage('success', `✅ Password '${username}' berjaya direset! Password baru: <strong>${rawPass}</strong> — Sila maklumkan kepada user.`);
+      }
+    }
+  }
+
+  function padamUser(id, username) {
+    if (id === currentUser.id) {
+      showMessage('error', '❌ Anda tidak boleh memadam akaun anda sendiri.');
+      return;
+    }
+    if (confirm(`Padam user ${username}?`)) {
+      let users = Store.get(STORAGE_KEYS.USERS, []);
+      users = users.filter(u => u.id !== id);
+      Store.set(STORAGE_KEYS.USERS, users);
+
+      let requests = Store.get(STORAGE_KEYS.RESET_REQUESTS, []);
+      requests = requests.filter(r => r.user_id !== id);
+      Store.set(STORAGE_KEYS.RESET_REQUESTS, requests);
+
+      Store.addLog(currentUser.id, 'Delete User', `User ID: ${id}`);
+      showMessage('success', '✅ User berjaya dipadam.');
+      renderUsers();
+    }
+  }
+
+  function selesaiRequest(requestId, userId, username) {
+    if (confirm(`Reset password untuk ${username}?`)) {
+      const users = Store.get(STORAGE_KEYS.USERS, []);
+      const u = users.find(user => user.id === userId);
+      if (u) {
+        const rawPass = generateRandomPassword();
+        u.password = rawPass;
+        u.first_login = 1;
+        Store.set(STORAGE_KEYS.USERS, users);
+      }
+
+      let requests = Store.get(STORAGE_KEYS.RESET_REQUESTS, []);
+      const req = requests.find(r => r.id === requestId);
+      if (req) {
+        req.status = 'selesai';
+        Store.set(STORAGE_KEYS.RESET_REQUESTS, requests);
+      }
+
+      Store.addLog(currentUser.id, 'Reset Password (Request)', `Username: ${username}`);
+      const rawPass = users.find(u => u.id === userId).password;
+      showMessage('success', `✅ Password '${username}' berjaya direset! Password baru: <strong>${rawPass}</strong> — Sila maklumkan kepada user.`);
+      renderUsers();
+    }
+  }
+
+  function renderUsers() {
+    const users = Store.get(STORAGE_KEYS.USERS, []);
+    const requests = Store.get(STORAGE_KEYS.RESET_REQUESTS, []).filter(r => r.status === 'pending');
+
+    // Render Requests
+    const reqCard = document.getElementById('request-reset-card');
+    const reqTbody = document.getElementById('request-table-body');
+    if (requests.length > 0) {
+      document.getElementById('request-count').textContent = requests.length;
+      reqTbody.innerHTML = '';
+      requests.forEach(req => {
+        const targetUser = users.find(u => u.id === req.user_id) || { nama: 'Unknown', username: 'Unknown' };
+        const reqDate = new Date(req.created_at).toLocaleString('ms-MY');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${targetUser.nama}</td>
+          <td>${targetUser.username}</td>
+          <td>${reqDate}</td>
+          <td>
+            <button class="btn-success" onclick="selesaiRequest(${req.id}, ${req.user_id}, '${targetUser.username}')">
+              Reset Password
+            </button>
+          </td>
+        `;
+        reqTbody.appendChild(tr);
+      });
+      reqCard.style.display = 'block';
+    } else {
+      reqCard.style.display = 'none';
+    }
+
+    // Render Users
+    const userTbody = document.getElementById('user-table-body');
+    userTbody.innerHTML = '';
+    users.forEach(u => {
+      const isSelf = (u.id === currentUser.id);
+      const deleteBtn = isSelf ? '' : `<button class="btn-danger" onclick="padamUser(${u.id}, '${u.username}')">Padam</button>`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.nama}</td>
+        <td>${u.username}</td>
+        <td><span class="badge badge-${u.role}">${u.role.toUpperCase()}</span></td>
+        <td>${u.bahagian}</td>
+        <td style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="btn-info" onclick="bukaEdit(${u.id})">Edit</button>
+          <button class="btn-warning" onclick="resetPassword(${u.id}, '${u.username}')">Reset Pass</button>
+          ${deleteBtn}
+        </td>
+      `;
+      userTbody.appendChild(tr);
+    });
+  }
+
+  renderUsers();
+</script>
+
+</body>
+</html>

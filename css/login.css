@@ -1,0 +1,543 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ==========================================
+   1. VARIABLES & RESET
+   ========================================== */
+:root {
+  --bg-main: #050d1a;
+  --bg-panel: #070f1e;
+  --bg-input: rgba(15, 25, 50, 0.8);
+  --bg-input-focus: rgba(15, 25, 50, 0.98);
+
+  --primary: #c9a84c;
+  --primary-hover: #e2c06a;
+  --primary-glow: rgba(201, 168, 76, 0.3);
+
+  --accent: #1a3a5c;
+  --accent2: #2d6a4f;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --border-color: rgba(201, 168, 76, 0.12);
+  --border-focus: #c9a84c;
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* ==========================================
+   2. PANEL KIRI — BRANDING
+   ========================================== */
+.left-panel {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.left-panel .bg-img {
+  position: absolute;
+  inset: 0;
+  background-image: url('../image/ALK_LOGIN.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.4);
+  transform: scale(1.03);
+  transition: transform 10s ease;
+}
+
+.left-panel:hover .bg-img {
+  transform: scale(1.08);
+}
+
+.left-panel .bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg,
+      rgba(5, 13, 26, 0.85) 0%,
+      rgba(26, 58, 92, 0.6) 40%,
+      rgba(45, 106, 79, 0.4) 70%,
+      rgba(5, 13, 26, 0.9) 100%);
+}
+
+/* Garis emas dekoratif */
+.left-panel .bg-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(201, 168, 76, 0.06) 50%, transparent 100%),
+    repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 40px,
+      rgba(201, 168, 76, 0.02) 40px,
+      rgba(201, 168, 76, 0.02) 41px);
+}
+
+.left-panel .brand-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 3rem;
+  max-width: 460px;
+}
+
+/* Logo */
+.brand-logo {
+  width: 160px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  margin-bottom: 2rem;
+  animation: floatLogo 4s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Title gradient emas */
+.brand-content h1 {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #f5d98b 0%, #c9a84c 40%, #ffffff 70%, #c9a84c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+}
+
+.brand-content p {
+  font-size: 15px;
+  color: rgba(200, 220, 240, 0.8);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Badges */
+.brand-badges {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.brand-badge {
+  padding: 6px 14px;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #e2c06a;
+  backdrop-filter: blur(4px);
+}
+
+/* Stats */
+.brand-stats {
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.brand-stat-num {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f5d98b;
+  text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+}
+
+.brand-stat-label {
+  font-size: 11.5px;
+  color: rgba(180, 200, 220, 0.65);
+  font-weight: 500;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Garis dekoratif kiri-kanan title */
+.brand-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 1.2rem auto;
+  max-width: 280px;
+}
+
+.brand-divider span {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 168, 76, 0.5), transparent);
+}
+
+.brand-divider i {
+  font-size: 16px;
+  color: #c9a84c;
+}
+
+/* ==========================================
+   3. PANEL KANAN — FORM LOGIN
+   ========================================== */
+.right-panel {
+  width: 520px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #070f1e 0%, #050d1a 50%, #07101f 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  position: relative;
+  border-left: 1px solid rgba(201, 168, 76, 0.15);
+  overflow: hidden;
+}
+
+/* Dekorasi bulatan glow */
+.right-panel::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.right-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -100px;
+  left: -80px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(26, 58, 92, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Corak garis halus */
+.right-panel .panel-pattern {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 60px,
+      rgba(201, 168, 76, 0.015) 60px,
+      rgba(201, 168, 76, 0.015) 61px);
+  pointer-events: none;
+}
+
+.login-inner {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 2;
+  animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Greeting (CENTERED) */
+.login-greeting {
+  margin-bottom: 2.2rem;
+  text-align: center;
+}
+
+.login-greeting .greet-label {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: 10px;
+  background: rgba(201, 168, 76, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+}
+
+.login-greeting h2 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-greeting p {
+  font-size: 14.5px;
+  color: var(--text-subtle);
+  line-height: 1.5;
+}
+
+/* Garis emas tipis bawah greeting */
+.login-greeting-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+  border-radius: 2px;
+  margin: 1.4rem auto 0 auto;
+  width: 80%;
+}
+
+/* Fields */
+.field {
+  margin-bottom: 1.4rem;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  color: #8a9bb0;
+  margin-bottom: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Penyelarasan Input & Select (Sama Saiz & Lebih Besar) */
+.field input,
+.field select {
+  width: 100%;
+  height: 52px;
+  padding: 0 18px;
+  background: rgba(10, 20, 45, 0.9);
+  border: 1.5px solid rgba(201, 168, 76, 0.15);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition);
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: #c9a84c;
+  background: rgba(10, 20, 45, 1);
+  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.15), 0 0 20px rgba(201, 168, 76, 0.05);
+}
+
+.field input::placeholder {
+  color: #3d5068;
+}
+
+.field select option {
+  background: #070f1e;
+  color: var(--text-main);
+}
+
+/* Select wrapper */
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #8a9bb0;
+  border-bottom: 2px solid #8a9bb0;
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.select-wrap:focus-within::after {
+  border-color: #c9a84c;
+  transform: translateY(-35%) rotate(225deg);
+}
+
+.select-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 42px;
+}
+
+/* Forgot link */
+.forgot-link {
+  display: inline-block;
+  font-size: 13.5px;
+  color: #8a9bb0;
+  text-decoration: none;
+  margin-bottom: 1.8rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.forgot-link:hover {
+  color: #c9a84c;
+}
+
+/* Error message */
+.error-msg {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 13.5px;
+  margin-bottom: 1.2rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Butang Login */
+.btn-login {
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #c9a84c 0%, #e2c06a 40%, #a8873d 100%);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #0c1220;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: var(--transition);
+  box-shadow:
+    0 4px 20px rgba(201, 168, 76, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.btn-login::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-login:hover::before {
+  left: 100%;
+}
+
+.btn-login:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(201, 168, 76, 0.5), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  background: linear-gradient(135deg, #d4b05a 0%, #f0ce78 40%, #b8943f 100%);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.login-footer {
+  margin-top: 2.5rem;
+  text-align: center;
+  font-size: 12px;
+  color: #2a3a50;
+  font-weight: 500;
+}
+
+/* Animasi */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   4. RESPONSIVE
+   ========================================== */
+@media (max-width: 960px) {
+  body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .left-panel {
+    min-height: 260px;
+    flex: none;
+  }
+
+  .brand-logo {
+    width: 220px;
+    max-width: 90%;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+  .brand-content h1 {
+    font-size: 26px;
+  }
+
+  .brand-content p {
+    font-size: 14px;
+  }
+
+  .right-panel {
+    width: 100%;
+    min-height: auto;
+    padding: 2.5rem 1.5rem;
+    border-left: none;
+    border-top: 1px solid rgba(201, 168, 76, 0.15);
+  }
+}

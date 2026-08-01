@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penyata | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/penyata.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">Viewer</span>
+      </div>
+    </div>
+  </div> 
+
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="penyata.html" class="nav-item active">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Viewer
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">VIEWER</div>
+      <h1>Penyata Kekuatan</h1>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+    </div>
+  </div>
+
+  <div class="date-bar">
+    <span>Tarikh Penyata</span>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input type="date" id="select-tarikh" style="padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-family:'Poppins',sans-serif; font-size:13px;">
+      <button type="button" onclick="renderPenyata()" style="padding:6px 14px; background:#1a1a3e; border:none; border-radius:8px; color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:'Poppins',sans-serif;">Papar</button>
+    </div>
+  </div>
+
+  <div class="penyata-wrap">
+    <div class="penyata-header">
+      <h2>PENYATA KEKUATAN KESELURUHAN ALK</h2>
+      <p id="penyata-tarikh-title">-</p>
+    </div>
+
+    <div id="penyata-table-container">
+      <!-- Penyata table rendered dynamically -->
+    </div>
+
+    <div class="ttd-section">
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan Oderli</p>
+      </div>
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan SMR</p>
+      </div>
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan Ajutan</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['viewer']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.getElementById('select-tarikh').value = todayStr;
+
+  function renderPenyata() {
+    const tarikhVal = document.getElementById('select-tarikh').value || todayStr;
+    const dateObj = new Date(tarikhVal);
+    const hariDisplay = dateObj.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
+    const tarikhDisplay = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    document.getElementById('penyata-tarikh-title').innerHTML = `${hariDisplay} &nbsp;|&nbsp; ${tarikhDisplay}`;
+
+    const columns = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
+    const rowsAll = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+    const rowsDalam = rowsAll.filter(r => r.kategori === 'dalam_pasukan');
+    const rowsLuar = rowsAll.filter(r => r.kategori === 'luar_pasukan');
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []).filter(a => a.status === 'aktif');
+    const kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []).filter(k => k.tarikh === tarikhVal);
+    const catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    const berbarisMap = {};
+    const tidakBerbarisMap = {};
+    const luarMap = {};
+    const dalamBreakdown = {};
+    const luarBreakdown = {};
+
+    columns.forEach(col => {
+      const colName = col.nama_column.toUpperCase();
+      berbarisMap[colName] = 0;
+      tidakBerbarisMap[colName] = 0;
+      luarMap[colName] = 0;
+    });
+
+    anggotaList.forEach(ang => {
+      const colName = (ang.bahagian || '').toUpperCase();
+      const keh = kehadiranList.find(k => k.anggota_id === ang.id);
+      if (keh) {
+        if (keh.status === 'hadir') {
+          if (berbarisMap[colName] !== undefined) berbarisMap[colName]++;
+        } else if (keh.status === 'tidak_hadir') {
+          const cat = catatanList.find(c => c.kehadiran_id === keh.id);
+          if (cat) {
+            if (cat.lokasi === 'dalam_pasukan') {
+              if (tidakBerbarisMap[colName] !== undefined) tidakBerbarisMap[colName]++;
+              const rMatch = rowsDalam.find(r => r.nama_row.toLowerCase() === (cat.sebab || '').toLowerCase());
+              if (rMatch) {
+                if (!dalamBreakdown[rMatch.id]) dalamBreakdown[rMatch.id] = {};
+                dalamBreakdown[rMatch.id][colName] = (dalamBreakdown[rMatch.id][colName] || 0) + 1;
+              }
+            } else if (cat.lokasi === 'luar_pasukan') {
+              if (luarMap[colName] !== undefined) luarMap[colName]++;
+              const rMatch = rowsLuar.find(r => r.nama_row.toLowerCase() === (cat.sebab || '').toLowerCase());
+              if (rMatch) {
+                if (!luarBreakdown[rMatch.id]) luarBreakdown[rMatch.id] = {};
+                luarBreakdown[rMatch.id][colName] = (luarBreakdown[rMatch.id][colName] || 0) + 1;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const numCols = columns.length;
+
+    let headerColsHtml = '';
+    columns.forEach(col => {
+      headerColsHtml += `<th>${col.nama_column.toUpperCase()}</th>`;
+    });
+
+    let overallRowHtml = '';
+    let grandKeseluruhan = 0;
+    columns.forEach(col => {
+      const bah = col.nama_column.toUpperCase();
+      const colTotal = (berbarisMap[bah] || 0) + (tidakBerbarisMap[bah] || 0) + (luarMap[bah] || 0);
+      grandKeseluruhan += colTotal;
+      overallRowHtml += `<td>${colTotal}</td>`;
+    });
+
+    let berbarisRowHtml = '';
+    let grandBerbaris = 0;
+    columns.forEach(col => {
+      const val = berbarisMap[col.nama_column.toUpperCase()] || 0;
+      grandBerbaris += val;
+      berbarisRowHtml += `<td>${val}</td>`;
+    });
+
+    let dalamRowsHtml = '';
+    rowsDalam.forEach(row => {
+      let rowTotal = 0;
+      let colCells = '';
+      columns.forEach(col => {
+        const autoVal = (dalamBreakdown[row.id] && dalamBreakdown[row.id][col.nama_column.toUpperCase()]) || 0;
+        rowTotal += autoVal;
+        colCells += `<td class="td-auto">${autoVal}</td>`;
+      });
+      dalamRowsHtml += `
+        <tr>
+          <td class="td-nama">${row.nama_row}</td>
+          ${colCells}
+          <td>${rowTotal}</td>
+        </tr>
+      `;
+    });
+
+    let subtotalDalamHtml = '';
+    let grandTidakBerbaris = 0;
+    columns.forEach(col => {
+      const val = tidakBerbarisMap[col.nama_column.toUpperCase()] || 0;
+      grandTidakBerbaris += val;
+      subtotalDalamHtml += `<td>${val}</td>`;
+    });
+
+    let luarRowsHtml = '';
+    rowsLuar.forEach(row => {
+      let rowTotal = 0;
+      let colCells = '';
+      columns.forEach(col => {
+        const autoVal = (luarBreakdown[row.id] && luarBreakdown[row.id][col.nama_column.toUpperCase()]) || 0;
+        rowTotal += autoVal;
+        colCells += `<td class="td-auto">${autoVal}</td>`;
+      });
+      luarRowsHtml += `
+        <tr>
+          <td class="td-nama">${row.nama_row}</td>
+          ${colCells}
+          <td>${rowTotal}</td>
+        </tr>
+      `;
+    });
+
+    let subtotalLuarHtml = '';
+    let grandLuar = 0;
+    columns.forEach(col => {
+      const val = luarMap[col.nama_column.toUpperCase()] || 0;
+      grandLuar += val;
+      subtotalLuarHtml += `<td>${val}</td>`;
+    });
+
+    const tableHtml = `
+      <table>
+        <thead>
+          <tr>
+            <th class="th-penugasan">PENUGASAN</th>
+            ${headerColsHtml}
+            <th>JUMLAH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tr-total">
+            <td class="td-nama">1. Kekuatan Keseluruhan</td>
+            ${overallRowHtml}
+            <td>${grandKeseluruhan}</td>
+          </tr>
+          <tr class="tr-jumlah">
+            <td class="td-nama">2. Berbaris</td>
+            ${berbarisRowHtml}
+            <td>${grandBerbaris}</td>
+          </tr>
+          <tr class="tr-kategori">
+            <td colspan="${numCols + 2}">3. TIDAK BERBARIS (DALAM PASUKAN)</td>
+          </tr>
+          ${dalamRowsHtml}
+          <tr class="tr-subtotal">
+            <td class="td-nama">Jumlah Tidak Berbaris</td>
+            ${subtotalDalamHtml}
+            <td>${grandTidakBerbaris}</td>
+          </tr>
+          <tr class="tr-kategori">
+            <td colspan="${numCols + 2}">4. LUAR PASUKAN</td>
+          </tr>
+          ${luarRowsHtml}
+          <tr class="tr-subtotal">
+            <td class="td-nama">Jumlah Luar Pasukan</td>
+            ${subtotalLuarHtml}
+            <td>${grandLuar}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('penyata-table-container').innerHTML = tableHtml;
+  }
+
+  renderPenyata();
+</script>
+
+</body>
+</html>

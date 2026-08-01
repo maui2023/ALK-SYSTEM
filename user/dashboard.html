@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laman Utama Pengguna | ALK System</title>
+
+  <!-- FONT INTER -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/admin_dashboard.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">User</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item active">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      -
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Ringkasan</div>
+      <h1>Laman Utama Pengguna</h1>
+      <p><span id="current-date-text"></span> &nbsp;•&nbsp; <span id="current-time-text"></span></p>
+    </div>
+    <div class="topbar-right">
+      <a href="rekod_kehadiran.html"><button class="btn-primary"><i class="ti ti-clipboard-check"></i> Rekod Kehadiran</button></a>
+      <a href="penyata.html"><button class="btn-secondary"><i class="ti ti-file-analytics"></i> Lihat Penyata</button></a>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="summary-card card-berbaris">
+      <div class="summary-info">
+        <div class="summary-number" id="total-berbaris">0</div>
+        <div class="summary-label">Berbaris</div>
+      </div>
+    </div>
+    <div class="summary-card card-tidak-berbaris">
+      <div class="summary-info">
+        <div class="summary-number" id="total-tidak-berbaris">0</div>
+        <div class="summary-label">Tidak Berbaris</div>
+      </div>
+    </div>
+    <div class="summary-card card-luar">
+      <div class="summary-info">
+        <div class="summary-number" id="total-luar">0</div>
+        <div class="summary-label">Luar Pasukan</div>
+      </div>
+    </div>
+    <div class="summary-card card-total">
+      <div class="summary-info">
+        <div class="summary-number" id="total-anggota">0</div>
+        <div class="summary-label">Jumlah Anggota</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAHAGIAN BREAKDOWN -->
+  <div class="section-title">Pecahan Mengikut Bahagian</div>
+
+  <div class="bahagian-grid" id="bahagian-grid">
+    <!-- Rendered dynamically -->
+  </div>
+
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['user']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+    document.getElementById('current-date-text').textContent = now.toLocaleDateString('ms-MY', options);
+    document.getElementById('current-time-text').textContent = now.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+  }
+  updateDateTime();
+  setInterval(updateDateTime, 60000);
+
+  function renderDashboard() {
+    const bahagianList = ['MARKAS', 'TADBIR', 'BLK', 'BBK', 'PNPL', 'AWAM'];
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []).filter(a => a.status === 'aktif');
+    const kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []).filter(k => k.tarikh === todayStr);
+    const catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    let grandBerbaris = 0;
+    let grandTidakBerbaris = 0;
+    let grandLuar = 0;
+    let grandTotal = anggotaList.length;
+
+    const gridContainer = document.getElementById('bahagian-grid');
+    gridContainer.innerHTML = '';
+
+    bahagianList.forEach(bah => {
+      const anggotaBah = anggotaList.filter(a => a.bahagian === bah);
+      const totalBah = anggotaBah.length;
+
+      let countBerbaris = 0;
+      let countTidakBerbaris = 0;
+      let countLuar = 0;
+
+      anggotaBah.forEach(ang => {
+        const keh = kehadiranList.find(k => k.anggota_id === ang.id);
+        if (keh) {
+          if (keh.status === 'hadir') {
+            countBerbaris++;
+          } else if (keh.status === 'tidak_hadir') {
+            const cat = catatanList.find(c => c.kehadiran_id === keh.id);
+            if (cat) {
+              if (cat.lokasi === 'dalam_pasukan') countTidakBerbaris++;
+              else if (cat.lokasi === 'luar_pasukan') countLuar++;
+            }
+          }
+        }
+      });
+
+      grandBerbaris += countBerbaris;
+      grandTidakBerbaris += countTidakBerbaris;
+      grandLuar += countLuar;
+
+      const card = document.createElement('div');
+      card.className = 'bahagian-card-new';
+      card.innerHTML = `
+        <div class="bahagian-card-header">
+          <div class="bahagian-name">${bah}</div>
+          <div class="bahagian-total">${totalBah} anggota</div>
+        </div>
+        <div class="bahagian-stats">
+          <div class="bstat bstat-berbaris">
+            <div class="bstat-num">${countBerbaris}</div>
+            <div class="bstat-label">Berbaris</div>
+          </div>
+          <div class="bstat bstat-tidak">
+            <div class="bstat-num">${countTidakBerbaris}</div>
+            <div class="bstat-label">Tidak Berbaris</div>
+          </div>
+          <div class="bstat bstat-luar">
+            <div class="bstat-num">${countLuar}</div>
+            <div class="bstat-label">Luar</div>
+          </div>
+        </div>
+      `;
+      gridContainer.appendChild(card);
+    });
+
+    document.getElementById('total-berbaris').textContent = grandBerbaris;
+    document.getElementById('total-tidak-berbaris').textContent = grandTidakBerbaris;
+    document.getElementById('total-luar').textContent = grandLuar;
+    document.getElementById('total-anggota').textContent = grandTotal;
+  }
+
+  renderDashboard();
+</script>
+
+</body>
+</html>

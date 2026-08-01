@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Aktiviti | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/log_aktiviti.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+  <div class="sidebar-logo-wrap">
+    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+    <div class="sidebar-logo-text">
+      <span class="sidebar-logo-title">E-ALK</span>
+      <span class="sidebar-logo-sub">Admin</span>
+    </div>
+  </div>
+</div>  
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+    <a href="urus_user.html" class="nav-item">
+      <i class="ti ti-user-cog"></i> Tetapan Pengguna
+    </a>
+    <a href="log_aktiviti.html" class="nav-item active">
+      <i class="ti ti-history"></i> Log Aktiviti
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Pentadbir Sistem
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Admin</div>
+      <h1>Log Aktiviti</h1>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <form id="filter-form" class="filter-bar" onsubmit="event.preventDefault(); renderLogs();">
+    <input type="text" id="cari-input" placeholder="Cari aksi, butiran, username..." />
+    <input type="date" id="tarikh-input" />
+    <button type="submit" style="padding:8px 16px; background:#1a1a2e; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+      Cari
+    </button>
+    <button type="button" onclick="resetFilter()" style="padding:8px 16px; background:#f5f5f5; border:1px solid #e0e0e0; border-radius:8px; color:#666; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+      Reset
+    </button>
+  </form>
+
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Rekod Aktiviti (<span id="log-count">0</span>)</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tarikh & Masa</th>
+          <th>Admin</th>
+          <th>Aksi</th>
+          <th>Butiran</th>
+        </tr>
+      </thead>
+      <tbody id="log-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['admin']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  function resetFilter() {
+    document.getElementById('cari-input').value = '';
+    document.getElementById('tarikh-input').value = '';
+    renderLogs();
+  }
+
+  function renderLogs() {
+    const cariVal = document.getElementById('cari-input').value.toLowerCase().trim();
+    const tarikhVal = document.getElementById('tarikh-input').value;
+
+    const logs = Store.get(STORAGE_KEYS.LOG_AKTIVITI, []);
+    const users = Store.get(STORAGE_KEYS.USERS, []);
+
+    let filtered = logs.filter(log => {
+      const u = users.find(user => user.id === log.user_id) || { nama: 'System', username: 'system' };
+      log._userName = u.nama;
+      log._userUsername = u.username;
+
+      if (tarikhVal) {
+        const logDateStr = new Date(log.created_at).toISOString().split('T')[0];
+        if (logDateStr !== tarikhVal) return false;
+      }
+
+      if (cariVal) {
+        const matchAksi = (log.aksi || '').toLowerCase().includes(cariVal);
+        const matchButiran = (log.butiran || '').toLowerCase().includes(cariVal);
+        const matchUser = (u.username || '').toLowerCase().includes(cariVal) || (u.nama || '').toLowerCase().includes(cariVal);
+        return matchAksi || matchButiran || matchUser;
+      }
+
+      return true;
+    });
+
+    document.getElementById('log-count').textContent = filtered.length;
+    const tbody = document.getElementById('log-table-body');
+    tbody.innerHTML = '';
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align:center; color:#aaa; padding:2rem;">Tiada rekod aktiviti.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    filtered.forEach(log => {
+      const formattedDate = new Date(log.created_at).toLocaleString('ms-MY');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${formattedDate}</td>
+        <td>${log._userName} <span style="color:#aaa; font-size:12px;">(${log._userUsername})</span></td>
+        <td><span class="badge-aksi">${log.aksi}</span></td>
+        <td>${log.butiran}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  renderLogs();
+</script>
+
+</body>
+</html>

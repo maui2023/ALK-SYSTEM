@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Masuk | ALK System</title>
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<!-- KIRI — BRANDING -->
+<div class="left-panel">
+  <div class="bg-img"></div>
+  <div class="bg-overlay"></div>
+  <div class="brand-content">
+
+    <img src="image/ALK.png" alt="Logo ALK" class="brand-logo">
+
+    <h1>ALK System</h1>
+    <p>Sistem Pengurusan Kehadiran Pegawai dan Staf<br>Akademi Latihan Ketenteraan</p>
+
+  </div>
+</div>
+
+<!-- KANAN — LOGIN FORM -->
+<div class="right-panel">
+  <div class="login-inner">
+
+    <div class="login-greeting">
+      <h2>Log Masuk<br></h2>
+      <p>Sila masukkan maklumat akaun anda.</p>
+    </div>
+
+    <div id="error-msg" class="error-msg" style="display: none;"></div>
+
+    <form id="login-form">
+
+      <div class="field">
+        <label>Nama Pengguna</label>
+        <input type="text" id="login-username" name="username" placeholder="Masukkan nama pengguna..." required autocomplete="username" />
+      </div>
+
+      <div class="field">
+        <label>Kata Laluan</label>
+        <input type="password" id="login-password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+
+      <a href="auth/forgot_password.html" class="forgot-link">Lupa Kata Laluan?</a>
+
+      <button type="submit" class="btn-login">Log Masuk</button>
+
+    </form>
+
+    <div class="login-footer">
+      © <span id="current-year"></span> Akademi Latihan Ketenteraan · ALK System
+    </div>
+
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/seed.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  document.getElementById('current-year').textContent = new Date().getFullYear();
+
+  // If already logged in, redirect to proper dashboard automatically
+  const user = Auth.getCurrentUser();
+  if (user) {
+    Auth.redirectToDashboard(user.role);
+  }
+
+  document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value;
+    const password = document.getElementById('login-password').value;
+
+    const res = Auth.login(username, password);
+    if (!res.success) {
+      const errEl = document.getElementById('error-msg');
+      errEl.textContent = res.message;
+      errEl.style.display = 'block';
+    }
+  });
+</script>
+
+</body>
+</html>

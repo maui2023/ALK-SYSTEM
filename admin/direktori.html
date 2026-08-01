@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direktori | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/direktori.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+  <div class="sidebar-logo-wrap">
+    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+    <div class="sidebar-logo-text">
+      <span class="sidebar-logo-title">E-ALK</span>
+      <span class="sidebar-logo-sub">Admin</span>
+    </div>
+  </div>
+</div>
+
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item active">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+    <a href="urus_user.html" class="nav-item">
+      <i class="ti ti-user-cog"></i> Tetapan Pengguna
+    </a>
+    <a href="log_aktiviti.html" class="nav-item">
+      <i class="ti ti-history"></i> Log Aktiviti
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Pentadbir Sistem
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Admin</div>
+      <h1>Direktori Anggota</h1>
+    </div>
+    <button class="btn-primary" onclick="document.getElementById('modal-tambah').classList.add('show')">
+      + Tambah Anggota
+    </button>
+  </div>
+
+  <div id="error-msg" class="error-msg" style="display:none;"></div>
+  <div id="success-msg" class="success-msg" style="display:none;"></div>
+
+  <!-- SEARCH & FILTER -->
+  <form id="filter-form" class="search-bar" onsubmit="event.preventDefault(); renderDirektori();">
+    <input type="text" id="cari-input" placeholder="Cari nama, no. anggota, jawatan, pangkat..." />
+    <select id="bahagian-select">
+      <option value="">Semua Bahagian</option>
+      <option value="MARKAS">MARKAS</option>
+      <option value="TADBIR">TADBIR</option>
+      <option value="BLK">BLK</option>
+      <option value="BBK">BBK</option>
+      <option value="PNPL">PNPL</option>
+      <option value="AWAM">AWAM</option>
+    </select>
+    <button type="submit" style="padding:8px 16px; background:#1a1a2e; border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+      Cari
+    </button>
+    <button type="button" onclick="resetFilter()" style="padding:8px 16px; background:#f5f5f5; border:1px solid #e0e0e0; border-radius:8px; color:#666; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+      Reset
+    </button>
+  </form>
+
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Senarai Anggota (<span id="total-count">0</span>)</h2>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Profil</th>
+          <th>Pangkat</th>
+          <th>No. Tentera</th>
+          <th>Nama</th>
+          <th>Bahagian</th>
+          <th>Jawatan</th>
+          <th>No. Telefon</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+
+      <tbody id="anggota-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL TAMBAH
+========================================================= -->
+<div class="modal-overlay" id="modal-tambah">
+  <div class="modal">
+    <h2>➕ Tambah Anggota</h2>
+    <form id="form-tambah-anggota">
+      <div class="field">
+        <label>Pangkat</label>
+        <input type="text" id="tambah-pangkat" placeholder="Contoh: Leftenan, Sarjan..." required />
+      </div>
+
+      <div class="field">
+        <label>No. Tentera</label>
+        <input type="text" id="tambah-no-anggota" required />
+      </div>
+
+      <div class="field">
+        <label>Nama Penuh</label>
+        <input type="text" id="tambah-nama" required />
+      </div>
+
+      <div class="field">
+        <label>Bahagian</label>
+        <select id="tambah-bahagian" required>
+          <option value="">-- Pilih --</option>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Jawatan</label>
+        <input type="text" id="tambah-jawatan" />
+      </div>
+
+      <div class="field">
+        <label>No. IC</label>
+        <input type="text" id="tambah-no-ic" />
+      </div>
+
+      <div class="field">
+        <label>No. Telefon</label>
+        <input type="text" id="tambah-no-telefon" />
+      </div>
+
+      <div class="field">
+        <label>Gambar Profil (JPG/PNG)</label>
+        <input type="file" id="tambah-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px;" />
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tambah').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- =========================================================
+     MODAL EDIT
+========================================================= -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <h2>✏️ Edit Anggota</h2>
+    <form id="form-edit-anggota">
+      <input type="hidden" id="edit-id">
+
+      <div class="field">
+        <label>Pangkat</label>
+        <input type="text" id="edit-pangkat" required />
+      </div>
+
+      <div class="field">
+        <label>No. Tentera</label>
+        <input type="text" id="edit-no-anggota" required />
+      </div>
+
+      <div class="field">
+        <label>Nama Penuh</label>
+        <input type="text" id="edit-nama" required />
+      </div>
+
+      <div class="field">
+        <label>Bahagian</label>
+        <select id="edit-bahagian" required>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Jawatan</label>
+        <input type="text" id="edit-jawatan" />
+      </div>
+
+      <div class="field">
+        <label>No. IC</label>
+        <input type="text" id="edit-no-ic" />
+      </div>
+
+      <div class="field">
+        <label>No. Telefon</label>
+        <input type="text" id="edit-no-telefon" />
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select id="edit-status">
+          <option value="aktif">Aktif</option>
+          <option value="tidak_aktif">Tidak Aktif</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Tukar Gambar Profil (kosongkan kalau tak nak tukar)</label>
+        <input type="file" id="edit-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px;" />
+      </div>
+
+      <div class="field" id="buang-gambar-wrap" style="display:none;">
+        <button type="button" onclick="buangGambar()" style="padding:8px 14px; background:#fff0f0; border:1px solid #ffcccc; border-radius:8px; color:#cc3333; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+          🗑️ Buang Gambar & Guna Avatar
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-edit').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Kemaskini</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox" onclick="tutupLightbox()">
+  <span class="lightbox-close">✕</span>
+  <img src="" class="lightbox-img" id="lightbox-img" alt="Gambar Profil">
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['admin']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  function showMessage(type, text) {
+    const errorEl = document.getElementById('error-msg');
+    const successEl = document.getElementById('success-msg');
+    if (type === 'error') {
+      errorEl.textContent = text;
+      errorEl.style.display = 'block';
+      setTimeout(() => { errorEl.style.display = 'none'; }, 4000);
+    } else {
+      successEl.textContent = text;
+      successEl.style.display = 'block';
+      setTimeout(() => { successEl.style.display = 'none'; }, 4000);
+    }
+  }
+
+  function resetFilter() {
+    document.getElementById('cari-input').value = '';
+    document.getElementById('bahagian-select').value = '';
+    renderDirektori();
+  }
+
+  // Helper file to Base64 data URL
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Handle Add Member
+  document.getElementById('form-tambah-anggota').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const pangkat = document.getElementById('tambah-pangkat').value.trim();
+    const noAnggota = document.getElementById('tambah-no-anggota').value.trim();
+    const nama = document.getElementById('tambah-nama').value.trim();
+    const bahagian = document.getElementById('tambah-bahagian').value;
+    const jawatan = document.getElementById('tambah-jawatan').value.trim();
+    const noIc = document.getElementById('tambah-no-ic').value.trim();
+    const noTelefon = document.getElementById('tambah-no-telefon').value.trim();
+    const fileInput = document.getElementById('tambah-gambar');
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+    if (anggotaList.some(a => a.no_anggota.toLowerCase() === noAnggota.toLowerCase())) {
+      showMessage('error', `❌ No. tentera '${noAnggota}' sudah wujud.`);
+      return;
+    }
+
+    let gambarBase64 = null;
+    if (fileInput.files && fileInput.files[0]) {
+      try {
+        gambarBase64 = await fileToBase64(fileInput.files[0]);
+      } catch (err) {
+        showMessage('error', '❌ Gagal memuat naik gambar.');
+        return;
+      }
+    }
+
+    const newAnggota = {
+      id: Store.getNextId(STORAGE_KEYS.ANGGOTA),
+      pangkat,
+      no_anggota: noAnggota,
+      nama,
+      bahagian,
+      jawatan,
+      no_ic: noIc,
+      no_telefon: noTelefon,
+      status: 'aktif',
+      gambar: gambarBase64
+    };
+
+    anggotaList.push(newAnggota);
+    Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
+    Store.addLog(currentUser.id, 'Tambah Anggota', `Pangkat: ${pangkat} | No: ${noAnggota} | Nama: ${nama} | Bahagian: ${bahagian}`);
+
+    document.getElementById('modal-tambah').classList.remove('show');
+    document.getElementById('form-tambah-anggota').reset();
+    showMessage('success', `✅ Anggota '${nama}' berjaya ditambah.`);
+    renderDirektori();
+  });
+
+  // Edit Modal Launcher
+  let currentEditMember = null;
+  function bukaEdit(id) {
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+    const ang = anggotaList.find(a => a.id === id);
+    if (!ang) return;
+
+    currentEditMember = ang;
+    document.getElementById('edit-id').value = ang.id;
+    document.getElementById('edit-pangkat').value = ang.pangkat || '';
+    document.getElementById('edit-no-anggota').value = ang.no_anggota || '';
+    document.getElementById('edit-nama').value = ang.nama || '';
+    document.getElementById('edit-bahagian').value = ang.bahagian || 'MARKAS';
+    document.getElementById('edit-jawatan').value = ang.jawatan || '';
+    document.getElementById('edit-no-ic').value = ang.no_ic || '';
+    document.getElementById('edit-no-telefon').value = ang.no_telefon || '';
+    document.getElementById('edit-status').value = ang.status || 'aktif';
+
+    document.getElementById('buang-gambar-wrap').style.display = ang.gambar ? 'block' : 'none';
+    document.getElementById('modal-edit').classList.add('show');
+  }
+
+  function buangGambar() {
+    if (confirm('Buang gambar dan guna avatar?') && currentEditMember) {
+      const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+      const ang = anggotaList.find(a => a.id === currentEditMember.id);
+      if (ang) {
+        ang.gambar = null;
+        Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
+        Store.addLog(currentUser.id, 'Buang Gambar', `ID: ${ang.id}`);
+        document.getElementById('buang-gambar-wrap').style.display = 'none';
+        showMessage('success', '✅ Gambar berjaya dibuang.');
+        renderDirektori();
+      }
+    }
+  }
+
+  // Handle Edit Member
+  document.getElementById('form-edit-anggota').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-id').value);
+    const pangkat = document.getElementById('edit-pangkat').value.trim();
+    const noAnggota = document.getElementById('edit-no-anggota').value.trim();
+    const nama = document.getElementById('edit-nama').value.trim();
+    const bahagian = document.getElementById('edit-bahagian').value;
+    const jawatan = document.getElementById('edit-jawatan').value.trim();
+    const noIc = document.getElementById('edit-no-ic').value.trim();
+    const noTelefon = document.getElementById('edit-no-telefon').value.trim();
+    const status = document.getElementById('edit-status').value;
+    const fileInput = document.getElementById('edit-gambar');
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+    const duplicate = anggotaList.find(a => a.no_anggota.toLowerCase() === noAnggota.toLowerCase() && a.id !== id);
+    if (duplicate) {
+      showMessage('error', `❌ No. tentera '${noAnggota}' sudah digunakan oleh anggota lain.`);
+      return;
+    }
+
+    const ang = anggotaList.find(a => a.id === id);
+    if (ang) {
+      ang.pangkat = pangkat;
+      ang.no_anggota = noAnggota;
+      ang.nama = nama;
+      ang.bahagian = bahagian;
+      ang.jawatan = jawatan;
+      ang.no_ic = noIc;
+      ang.no_telefon = noTelefon;
+      ang.status = status;
+
+      if (fileInput.files && fileInput.files[0]) {
+        try {
+          ang.gambar = await fileToBase64(fileInput.files[0]);
+        } catch (err) {
+          showMessage('error', '❌ Gagal memuat naik gambar baharu.');
+          return;
+        }
+      }
+
+      Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
+      Store.addLog(currentUser.id, 'Edit Anggota', `ID: ${id} | Pangkat: ${pangkat} | No: ${noAnggota} | Nama: ${nama}`);
+      document.getElementById('modal-edit').classList.remove('show');
+      showMessage('success', '✅ Maklumat anggota berjaya dikemaskini.');
+      renderDirektori();
+    }
+  });
+
+  // Handle Delete Member
+  function padamAnggota(id, nama) {
+    if (confirm(`Padam anggota ${nama}? Semua rekod kehadiran akan dipadam sekali.`)) {
+      let anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+      anggotaList = anggotaList.filter(a => a.id !== id);
+      Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
+
+      // Clean up kehadiran & catatan
+      let kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []);
+      let catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+      const deletedKehIds = kehadiranList.filter(k => k.anggota_id === id).map(k => k.id);
+      kehadiranList = kehadiranList.filter(k => k.anggota_id !== id);
+      catatanList = catatanList.filter(c => !deletedKehIds.includes(c.kehadiran_id));
+
+      Store.set(STORAGE_KEYS.KEHADIRAN, kehadiranList);
+      Store.set(STORAGE_KEYS.CATATAN_TIDAK_HADIR, catatanList);
+      Store.addLog(currentUser.id, 'Padam Anggota', `ID: ${id}`);
+
+      showMessage('success', '✅ Anggota berjaya dipadam.');
+      renderDirektori();
+    }
+  }
+
+  function bukaLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('show');
+  }
+
+  function tutupLightbox() {
+    document.getElementById('lightbox').classList.remove('show');
+  }
+
+  function renderDirektori() {
+    const cariVal = document.getElementById('cari-input').value.toLowerCase().trim();
+    const bahVal = document.getElementById('bahagian-select').value;
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+
+    let filtered = anggotaList.filter(ang => {
+      if (bahVal && ang.bahagian !== bahVal) return false;
+      if (cariVal) {
+        const matchNama = (ang.nama || '').toLowerCase().includes(cariVal);
+        const matchNo = (ang.no_anggota || '').toLowerCase().includes(cariVal);
+        const matchJawatan = (ang.jawatan || '').toLowerCase().includes(cariVal);
+        const matchPangkat = (ang.pangkat || '').toLowerCase().includes(cariVal);
+        return matchNama || matchNo || matchJawatan || matchPangkat;
+      }
+      return true;
+    });
+
+    document.getElementById('total-count').textContent = filtered.length;
+    const tbody = document.getElementById('anggota-table-body');
+    tbody.innerHTML = '';
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align:center; color:#aaa; padding:2rem;">Tiada anggota dijumpai.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    filtered.forEach(ang => {
+      let avatarHtml = '';
+      if (ang.gambar) {
+        avatarHtml = `<img src="${ang.gambar}" class="profil-img" alt="${ang.nama}" onclick="bukaLightbox('${ang.gambar}')">`;
+      } else {
+        const initial = (ang.nama || 'A').charAt(0).toUpperCase();
+        avatarHtml = `<div class="profil-avatar avatar-${ang.bahagian}">${initial}</div>`;
+      }
+
+      const statusBadge = (ang.status === 'aktif') 
+        ? '<span class="badge-aktif">Aktif</span>' 
+        : '<span class="badge-tidak-aktif">Tidak Aktif</span>';
+
+      const escapeNama = (ang.nama || '').replace(/'/g, "\\'");
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><div class="profil-wrap">${avatarHtml}</div></td>
+        <td>${ang.pangkat || '-'}</td>
+        <td>${ang.no_anggota || '-'}</td>
+        <td>${ang.nama || '-'}</td>
+        <td><span class="badge-bahagian">${ang.bahagian}</span></td>
+        <td>${ang.jawatan || '-'}</td>
+        <td>${ang.no_telefon || '-'}</td>
+        <td>${statusBadge}</td>
+        <td style="display:flex; gap:6px;">
+          <button class="btn-warning" onclick="bukaEdit(${ang.id})">Edit</button>
+          <button class="btn-danger" onclick="padamAnggota(${ang.id}, '${escapeNama}')">Padam</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      tutupLightbox();
+      document.getElementById('modal-tambah').classList.remove('show');
+      document.getElementById('modal-edit').classList.remove('show');
+    }
+  });
+
+  renderDirektori();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penyata | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/penyata.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+  <div class="sidebar-logo-wrap">
+    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+    <div class="sidebar-logo-text">
+      <span class="sidebar-logo-title">E-ALK</span>
+      <span class="sidebar-logo-sub">Admin</span>
+    </div>
+  </div>
+</div>  
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item active">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+    <a href="urus_user.html" class="nav-item">
+      <i class="ti ti-user-cog"></i> Tetapan Pengguna
+    </a>
+    <a href="log_aktiviti.html" class="nav-item">
+      <i class="ti ti-history"></i> Log Aktiviti
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Pentadbir Sistem
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Admin</div>
+      <h1>Penyata Kekuatan</h1>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-secondary" onclick="document.getElementById('modal-tambah-col').classList.add('show')">+ Tambah Column</button>
+      <button class="btn-secondary" onclick="document.getElementById('modal-tambah-row').classList.add('show')">+ Tambah Row</button>
+      <button class="btn-primary" onclick="simpanPenyata()">💾 Simpan</button>
+      <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+    </div>
+  </div>
+
+  <div id="success-msg" class="success-msg" style="display:none;"></div>
+
+  <div class="date-bar">
+    <span>Tarikh Penyata</span>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input type="date" id="select-tarikh" style="padding:6px 10px; border:1.5px solid #e2e8f0; border-radius:8px; font-family:'Poppins',sans-serif; font-size:13px;">
+      <button type="button" onclick="renderPenyata()" style="padding:6px 14px; background:#1a1a3e; border:none; border-radius:8px; color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:'Poppins',sans-serif;">Papar</button>
+    </div>
+  </div>
+
+  <div class="penyata-wrap">
+    <div class="penyata-header">
+      <h2>PENYATA KEKUATAN KESELURUHAN ALK</h2>
+      <p id="penyata-tarikh-title">-</p>
+    </div>
+
+    <div id="penyata-table-container">
+      <!-- Penyata table rendered dynamically -->
+    </div>
+
+    <div class="ttd-section">
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan Oderli</p>
+      </div>
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan SMR</p>
+      </div>
+      <div class="ttd-item">
+        <div class="ttd-line"></div>
+        <p>T/Tangan Ajutan</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="context-menu" id="context-menu">
+  <div class="context-menu-item edit" id="ctx-edit">✏️ Edit</div>
+  <div class="context-menu-item padam" id="ctx-padam">🗑️ Padam</div>
+</div>
+
+<!-- MODAL TAMBAH COLUMN -->
+<div class="modal-overlay" id="modal-tambah-col">
+  <div class="modal">
+    <h2>➕ Tambah Column</h2>
+    <form id="form-tambah-col">
+      <div class="field">
+        <label>Nama Column</label>
+        <input type="text" id="input-nama-col" placeholder="Contoh: MARKAS, TADBIR..." required />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tambah-col').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Tambah</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH ROW -->
+<div class="modal-overlay" id="modal-tambah-row">
+  <div class="modal">
+    <h2>➕ Tambah Baris</h2>
+    <form id="form-tambah-row">
+      <div class="field">
+        <label>Kategori</label>
+        <select id="modal-row-kategori" required>
+          <option value="luar_pasukan">🌍 Luar Pasukan</option>
+          <option value="dalam_pasukan">🏢 Tidak Berbaris (Dalam Pasukan)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nama Baris</label>
+        <input type="text" id="input-nama-row" placeholder="Contoh: Cuti, Kursus..." required />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tambah-row').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Tambah</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDIT COLUMN -->
+<div class="modal-overlay" id="modal-edit-col">
+  <div class="modal">
+    <h2>✏️ Edit Column</h2>
+    <form id="form-edit-col">
+      <input type="hidden" id="edit-col-id">
+      <div class="field">
+        <label>Nama Column</label>
+        <input type="text" id="edit-col-nama" required />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-edit-col').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Kemaskini</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL EDIT ROW -->
+<div class="modal-overlay" id="modal-edit-row">
+  <div class="modal">
+    <h2>✏️ Edit Baris</h2>
+    <form id="form-edit-row">
+      <input type="hidden" id="edit-row-id">
+      <div class="field">
+        <label>Nama Baris</label>
+        <input type="text" id="edit-row-nama" required />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-edit-row').classList.remove('show')">Batal</button>
+        <button type="submit" class="btn-primary">Kemaskini</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['admin']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.getElementById('select-tarikh').value = todayStr;
+
+  let ctxType = '';
+  let ctxId   = null;
+  let ctxNama = '';
+
+  function showNotification(msg) {
+    const el = document.getElementById('success-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+
+  function simpanPenyata() {
+    Store.addLog(currentUser.id, 'Simpan Penyata', `Tarikh: ${document.getElementById('select-tarikh').value}`);
+    showNotification('✅ Penyata berjaya disimpan.');
+  }
+
+  function bukaContextCol(e, id, nama) {
+    e.stopPropagation();
+    ctxType = 'column';
+    ctxId   = id;
+    ctxNama = nama;
+    const menu = document.getElementById('context-menu');
+    menu.style.top  = e.pageY + 'px';
+    menu.style.left = e.pageX + 'px';
+    menu.classList.add('show');
+  }
+
+  function bukaContextRow(e, id, nama) {
+    e.stopPropagation();
+    ctxType = 'row';
+    ctxId   = id;
+    ctxNama = nama;
+    const menu = document.getElementById('context-menu');
+    menu.style.top  = e.pageY + 'px';
+    menu.style.left = e.pageX + 'px';
+    menu.classList.add('show');
+  }
+
+  document.getElementById('ctx-edit').addEventListener('click', function() {
+    document.getElementById('context-menu').classList.remove('show');
+    if (ctxType === 'column') {
+      document.getElementById('edit-col-id').value   = ctxId;
+      document.getElementById('edit-col-nama').value = ctxNama;
+      document.getElementById('modal-edit-col').classList.add('show');
+    } else {
+      document.getElementById('edit-row-id').value   = ctxId;
+      document.getElementById('edit-row-nama').value = ctxNama;
+      document.getElementById('modal-edit-row').classList.add('show');
+    }
+  });
+
+  document.getElementById('ctx-padam').addEventListener('click', function() {
+    document.getElementById('context-menu').classList.remove('show');
+    if (confirm('Confirm nak padam ' + ctxNama + '?')) {
+      if (ctxType === 'column') {
+        let cols = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
+        cols = cols.filter(c => c.id !== ctxId);
+        Store.set(STORAGE_KEYS.PENYATA_COLUMN, cols);
+        Store.addLog(currentUser.id, 'Padam Column', `Column ID: ${ctxId}`);
+      } else {
+        let rows = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+        rows = rows.filter(r => r.id !== ctxId);
+        Store.set(STORAGE_KEYS.PENYATA_ROW, rows);
+        Store.addLog(currentUser.id, 'Padam Row', `Row ID: ${ctxId}`);
+      }
+      showNotification('✅ Padam berjaya.');
+      renderPenyata();
+    }
+  });
+
+  document.addEventListener('click', function() {
+    document.getElementById('context-menu').classList.remove('show');
+  });
+
+  function bukaRow(kategori) {
+    document.getElementById('modal-row-kategori').value = kategori;
+    document.getElementById('modal-tambah-row').classList.add('show');
+  }
+
+  // Handle Form Submissions
+  document.getElementById('form-tambah-col').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('input-nama-col').value.trim();
+    if (!nama) return;
+    const cols = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
+    cols.push({ id: Store.getNextId(STORAGE_KEYS.PENYATA_COLUMN), nama_column: nama });
+    Store.set(STORAGE_KEYS.PENYATA_COLUMN, cols);
+    Store.addLog(currentUser.id, 'Tambah Column', `Column: ${nama}`);
+    document.getElementById('modal-tambah-col').classList.remove('show');
+    document.getElementById('input-nama-col').value = '';
+    showNotification(`✅ Column '${nama}' berjaya ditambah.`);
+    renderPenyata();
+  });
+
+  document.getElementById('form-tambah-row').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const kategori = document.getElementById('modal-row-kategori').value;
+    const nama = document.getElementById('input-nama-row').value.trim();
+    if (!nama) return;
+    const rows = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+    rows.push({ id: Store.getNextId(STORAGE_KEYS.PENYATA_ROW), kategori, nama_row: nama });
+    Store.set(STORAGE_KEYS.PENYATA_ROW, rows);
+    Store.addLog(currentUser.id, 'Tambah Row', `Row: ${nama} | Kategori: ${kategori}`);
+    document.getElementById('modal-tambah-row').classList.remove('show');
+    document.getElementById('input-nama-row').value = '';
+    showNotification(`✅ Baris '${nama}' berjaya ditambah.`);
+    renderPenyata();
+  });
+
+  document.getElementById('form-edit-col').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-col-id').value);
+    const nama = document.getElementById('edit-col-nama').value.trim();
+    const cols = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
+    const c = cols.find(item => item.id === id);
+    if (c) {
+      c.nama_column = nama;
+      Store.set(STORAGE_KEYS.PENYATA_COLUMN, cols);
+      Store.addLog(currentUser.id, 'Edit Column', `Column: ${nama}`);
+    }
+    document.getElementById('modal-edit-col').classList.remove('show');
+    showNotification('✅ Column berjaya dikemaskini.');
+    renderPenyata();
+  });
+
+  document.getElementById('form-edit-row').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('edit-row-id').value);
+    const nama = document.getElementById('edit-row-nama').value.trim();
+    const rows = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+    const r = rows.find(item => item.id === id);
+    if (r) {
+      r.nama_row = nama;
+      Store.set(STORAGE_KEYS.PENYATA_ROW, rows);
+      Store.addLog(currentUser.id, 'Edit Row', `Row: ${nama}`);
+    }
+    document.getElementById('modal-edit-row').classList.remove('show');
+    showNotification('✅ Baris berjaya dikemaskini.');
+    renderPenyata();
+  });
+
+  function renderPenyata() {
+    const tarikhVal = document.getElementById('select-tarikh').value || todayStr;
+    const dateObj = new Date(tarikhVal);
+    const hariDisplay = dateObj.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
+    const tarikhDisplay = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    document.getElementById('penyata-tarikh-title').innerHTML = `${hariDisplay} &nbsp;|&nbsp; ${tarikhDisplay}`;
+
+    const columns = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
+    const rowsAll = Store.get(STORAGE_KEYS.PENYATA_ROW, []);
+    const rowsDalam = rowsAll.filter(r => r.kategori === 'dalam_pasukan');
+    const rowsLuar = rowsAll.filter(r => r.kategori === 'luar_pasukan');
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []).filter(a => a.status === 'aktif');
+    const kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []).filter(k => k.tarikh === tarikhVal);
+    const catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
+
+    // Calculate Maps
+    const berbarisMap = {};
+    const tidakBerbarisMap = {};
+    const luarMap = {};
+    const dalamBreakdown = {};
+    const luarBreakdown = {};
+
+    columns.forEach(col => {
+      const colName = col.nama_column.toUpperCase();
+      berbarisMap[colName] = 0;
+      tidakBerbarisMap[colName] = 0;
+      luarMap[colName] = 0;
+    });
+
+    anggotaList.forEach(ang => {
+      const colName = (ang.bahagian || '').toUpperCase();
+      const keh = kehadiranList.find(k => k.anggota_id === ang.id);
+      if (keh) {
+        if (keh.status === 'hadir') {
+          if (berbarisMap[colName] !== undefined) berbarisMap[colName]++;
+        } else if (keh.status === 'tidak_hadir') {
+          const cat = catatanList.find(c => c.kehadiran_id === keh.id);
+          if (cat) {
+            if (cat.lokasi === 'dalam_pasukan') {
+              if (tidakBerbarisMap[colName] !== undefined) tidakBerbarisMap[colName]++;
+              // Breakdown by row
+              const rMatch = rowsDalam.find(r => r.nama_row.toLowerCase() === (cat.sebab || '').toLowerCase());
+              if (rMatch) {
+                if (!dalamBreakdown[rMatch.id]) dalamBreakdown[rMatch.id] = {};
+                dalamBreakdown[rMatch.id][colName] = (dalamBreakdown[rMatch.id][colName] || 0) + 1;
+              }
+            } else if (cat.lokasi === 'luar_pasukan') {
+              if (luarMap[colName] !== undefined) luarMap[colName]++;
+              // Breakdown by row
+              const rMatch = rowsLuar.find(r => r.nama_row.toLowerCase() === (cat.sebab || '').toLowerCase());
+              if (rMatch) {
+                if (!luarBreakdown[rMatch.id]) luarBreakdown[rMatch.id] = {};
+                luarBreakdown[rMatch.id][colName] = (luarBreakdown[rMatch.id][colName] || 0) + 1;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const numCols = columns.length;
+
+    // Build Table HTML
+    let headerColsHtml = '';
+    columns.forEach(col => {
+      const escapeColName = col.nama_column.replace(/'/g, "\\'");
+      headerColsHtml += `
+        <th>
+          <span class="clickable" onclick="bukaContextCol(event, ${col.id}, '${escapeColName}')">
+            ${col.nama_column.toUpperCase()}
+          </span>
+        </th>
+      `;
+    });
+
+    // 1. Kekuatan Keseluruhan
+    let overallRowHtml = '';
+    let grandKeseluruhan = 0;
+    columns.forEach(col => {
+      const bah = col.nama_column.toUpperCase();
+      const colTotal = (berbarisMap[bah] || 0) + (tidakBerbarisMap[bah] || 0) + (luarMap[bah] || 0);
+      grandKeseluruhan += colTotal;
+      overallRowHtml += `<td>${colTotal}</td>`;
+    });
+
+    // 2. Berbaris
+    let berbarisRowHtml = '';
+    let grandBerbaris = 0;
+    columns.forEach(col => {
+      const val = berbarisMap[col.nama_column.toUpperCase()] || 0;
+      grandBerbaris += val;
+      berbarisRowHtml += `<td>${val}</td>`;
+    });
+
+    // 3. Dalam Pasukan Rows
+    let dalamRowsHtml = '';
+    rowsDalam.forEach(row => {
+      const escapeRowName = row.nama_row.replace(/'/g, "\\'");
+      let rowTotal = 0;
+      let colCells = '';
+      columns.forEach(col => {
+        const autoVal = (dalamBreakdown[row.id] && dalamBreakdown[row.id][col.nama_column.toUpperCase()]) || 0;
+        rowTotal += autoVal;
+        colCells += `<td class="td-auto">${autoVal}</td>`;
+      });
+      dalamRowsHtml += `
+        <tr>
+          <td class="td-nama">
+            <span class="clickable" onclick="bukaContextRow(event, ${row.id}, '${escapeRowName}')">
+              ${row.nama_row}
+            </span>
+          </td>
+          ${colCells}
+          <td>${rowTotal}</td>
+        </tr>
+      `;
+    });
+
+    // Subtotal Dalam Pasukan
+    let subtotalDalamHtml = '';
+    let grandTidakBerbaris = 0;
+    columns.forEach(col => {
+      const val = tidakBerbarisMap[col.nama_column.toUpperCase()] || 0;
+      grandTidakBerbaris += val;
+      subtotalDalamHtml += `<td>${val}</td>`;
+    });
+
+    // 4. Luar Pasukan Rows
+    let luarRowsHtml = '';
+    rowsLuar.forEach(row => {
+      const escapeRowName = row.nama_row.replace(/'/g, "\\'");
+      let rowTotal = 0;
+      let colCells = '';
+      columns.forEach(col => {
+        const autoVal = (luarBreakdown[row.id] && luarBreakdown[row.id][col.nama_column.toUpperCase()]) || 0;
+        rowTotal += autoVal;
+        colCells += `<td class="td-auto" title="Auto dari rekod kehadiran">${autoVal}</td>`;
+      });
+      luarRowsHtml += `
+        <tr>
+          <td class="td-nama">
+            <span class="clickable" onclick="bukaContextRow(event, ${row.id}, '${escapeRowName}')">
+              ${row.nama_row}
+            </span>
+          </td>
+          ${colCells}
+          <td>${rowTotal}</td>
+        </tr>
+      `;
+    });
+
+    // Subtotal Luar Pasukan
+    let subtotalLuarHtml = '';
+    let grandLuar = 0;
+    columns.forEach(col => {
+      const val = luarMap[col.nama_column.toUpperCase()] || 0;
+      grandLuar += val;
+      subtotalLuarHtml += `<td>${val}</td>`;
+    });
+
+    const tableHtml = `
+      <table>
+        <thead>
+          <tr>
+            <th class="th-Penugasan"></th>
+            ${headerColsHtml}
+            <th>JUMLAH</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 1. KEKUATAN KESELURUHAN -->
+          <tr class="tr-total">
+            <td class="td-nama">1. Kekuatan Keseluruhan</td>
+            ${overallRowHtml}
+            <td>${grandKeseluruhan}</td>
+          </tr>
+
+          <!-- 2. BERBARIS -->
+          <tr class="tr-jumlah">
+            <td class="td-nama">2. Berbaris</td>
+            ${berbarisRowHtml}
+            <td>${grandBerbaris}</td>
+          </tr>
+
+          <!-- 3. TIDAK BERBARIS (DALAM PASUKAN) -->
+          <tr class="tr-kategori">
+            <td colspan="${numCols + 2}">
+              3. TIDAK BERBARIS (DALAM PASUKAN)
+              <button type="button" class="add-row-btn" onclick="bukaRow('dalam_pasukan')">+ Tambah Baris</button>
+            </td>
+          </tr>
+          ${dalamRowsHtml}
+          <tr class="tr-subtotal">
+            <td class="td-nama">Jumlah Tidak Berbaris</td>
+            ${subtotalDalamHtml}
+            <td>${grandTidakBerbaris}</td>
+          </tr>
+
+          <!-- 4. LUAR PASUKAN -->
+          <tr class="tr-kategori">
+            <td colspan="${numCols + 2}">
+              4. LUAR PASUKAN
+              <button type="button" class="add-row-btn" onclick="bukaRow('luar_pasukan')">+ Tambah Baris</button>
+            </td>
+          </tr>
+          ${luarRowsHtml}
+          <tr class="tr-subtotal">
+            <td class="td-nama">Jumlah Luar Pasukan</td>
+            ${subtotalLuarHtml}
+            <td>${grandLuar}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    document.getElementById('penyata-table-container').innerHTML = tableHtml;
+  }
+
+  renderPenyata();
+</script>
+
+</body>
+</html>

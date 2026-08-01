@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direktori | ALK System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../css/direktori.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">User</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="nav-item">
+      <i class="ti ti-layout-dashboard"></i> Laman Utama
+    </a>
+    <a href="rekod_kehadiran.html" class="nav-item">
+      <i class="ti ti-clipboard-check"></i> Rekod Kehadiran
+    </a>
+    <a href="penyata.html" class="nav-item">
+      <i class="ti ti-file-analytics"></i> Penyata
+    </a>
+    <a href="direktori.html" class="nav-item active">
+      <i class="ti ti-users"></i> Direktori
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="status-badge" id="user-status-badge">
+      Pengguna
+    </div>
+    <button type="button" onclick="Auth.logout()" class="btn-logout">Logout</button>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-label">Pengguna</div>
+      <h1>Direktori Anggota</h1>
+    </div>
+  </div>
+
+  <form id="search-form" class="search-bar" onsubmit="event.preventDefault(); renderDirektori();">
+    <input type="text" id="cari-input" placeholder="Cari nama, no. anggota, jawatan, pangkat..." />
+    <select id="bahagian-select">
+      <option value="">Semua Bahagian</option>
+      <option value="MARKAS">MARKAS</option>
+      <option value="TADBIR">TADBIR</option>
+      <option value="BLK">BLK</option>
+      <option value="BBK">BBK</option>
+      <option value="PNPL">PNPL</option>
+      <option value="AWAM">AWAM</option>
+    </select>
+    <button type="submit" style="padding:8px 16px; background:#1a1a2e; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">Cari</button>
+    <button type="button" onclick="resetFilter()" style="padding:8px 16px; background:#f5f5f5; border:1px solid #e0e0e0; border-radius:8px; color:#666; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">Reset</button>
+  </form>
+
+  <div class="table-card">
+    <div class="table-card-header">
+      <h2>Senarai Anggota (<span id="total-count">0</span>)</h2>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Profil</th>
+          <th>Pangkat</th>
+          <th>No. Anggota</th>
+          <th>Nama</th>
+          <th>Bahagian</th>
+          <th>Jawatan</th>
+          <th>No. Telefon</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="anggota-table-body">
+        <!-- Rendered dynamically -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="lightbox-overlay" id="lightbox" onclick="tutupLightbox()">
+  <span class="lightbox-close">✕</span>
+  <img src="" class="lightbox-img" id="lightbox-img" alt="Gambar Profil">
+</div>
+
+<script src="../js/store.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const currentUser = Auth.requireAuth(['user']);
+  if (currentUser) {
+    document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  function resetFilter() {
+    document.getElementById('cari-input').value = '';
+    document.getElementById('bahagian-select').value = '';
+    renderDirektori();
+  }
+
+  function bukaLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('show');
+  }
+
+  function tutupLightbox() {
+    document.getElementById('lightbox').classList.remove('show');
+  }
+
+  function renderDirektori() {
+    const cariVal = document.getElementById('cari-input').value.toLowerCase().trim();
+    const bahVal = document.getElementById('bahagian-select').value;
+
+    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+
+    let filtered = anggotaList.filter(ang => {
+      if (bahVal && ang.bahagian !== bahVal) return false;
+      if (cariVal) {
+        const matchNama = (ang.nama || '').toLowerCase().includes(cariVal);
+        const matchNo = (ang.no_anggota || '').toLowerCase().includes(cariVal);
+        const matchJawatan = (ang.jawatan || '').toLowerCase().includes(cariVal);
+        const matchPangkat = (ang.pangkat || '').toLowerCase().includes(cariVal);
+        return matchNama || matchNo || matchJawatan || matchPangkat;
+      }
+      return true;
+    });
+
+    document.getElementById('total-count').textContent = filtered.length;
+    const tbody = document.getElementById('anggota-table-body');
+    tbody.innerHTML = '';
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center; color:#aaa; padding:2rem;">Tiada anggota dijumpai.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    filtered.forEach(ang => {
+      let avatarHtml = '';
+      if (ang.gambar) {
+        avatarHtml = `<img src="${ang.gambar}" class="profil-img" alt="${ang.nama}" onclick="bukaLightbox('${ang.gambar}')">`;
+      } else {
+        const initial = (ang.nama || 'A').charAt(0).toUpperCase();
+        avatarHtml = `<div class="profil-avatar avatar-${ang.bahagian}">${initial}</div>`;
+      }
+
+      const statusBadge = (ang.status === 'aktif') 
+        ? '<span class="badge-aktif">Aktif</span>' 
+        : '<span class="badge-tidak-aktif">Tidak Aktif</span>';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><div class="profil-wrap">${avatarHtml}</div></td>
+        <td>${ang.pangkat || '-'}</td>
+        <td>${ang.no_anggota || '-'}</td>
+        <td>${ang.nama || '-'}</td>
+        <td><span class="badge-bahagian">${ang.bahagian}</span></td>
+        <td>${ang.jawatan || '-'}</td>
+        <td>${ang.no_telefon || '-'}</td>
+        <td>${statusBadge}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      tutupLightbox();
+    }
+  });
+
+  renderDirektori();
+</script>
+
+</body>
+</html>
