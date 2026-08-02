@@ -352,9 +352,9 @@
     const tarikhVal = document.getElementById('select-tarikh').value || todayStr;
     const dateObj = new Date(tarikhVal);
     const hariDisplay = dateObj.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
-    const tarikhDisplay = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+    const tarikhDisplay = dateObj.toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase();
 
-    document.getElementById('penyata-tarikh-title').innerHTML = `${hariDisplay} &nbsp;|&nbsp; ${tarikhDisplay}`;
+    document.getElementById('penyata-tarikh-title').innerHTML = `BERTARIKH: ${hariDisplay}, ${tarikhDisplay}`;
 
     const columns = Store.get(STORAGE_KEYS.PENYATA_COLUMN, []);
     const rowsAll = Store.get(STORAGE_KEYS.PENYATA_ROW, []);

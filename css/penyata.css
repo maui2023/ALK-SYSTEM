@@ -14,17 +14,49 @@
 
 /* Penyata header */
 .penyata-header {
-  padding: 1rem 1.4rem;
+  padding: 1.2rem 1.4rem;
   background: #060a04;
   border-bottom: 1px solid rgba(74,103,65,0.4);
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  gap: 6px;
 }
 
-.penyata-title {
+.penyata-title, .penyata-header h2 {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 14px; color: #d4af37;
+  font-size: 16px; color: #ffd700 !important;
   text-transform: uppercase; letter-spacing: 0.12em;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.penyata-header p, #penyata-tarikh-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: #ffffff !important;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+}
+
+/* All table cells in penyata */
+.penyata-wrap table td,
+.penyata-wrap table th,
+.td-nama,
+.td-auto,
+.clickable {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.penyata-wrap table thead th,
+.tr-kategori td,
+.tr-total td,
+.tr-subtotal td,
+.tr-jumlah td {
+  color: #ffd700 !important;
+  font-weight: 700 !important;
 }
 
 /* Print header (visible only on print) */
@@ -34,40 +66,42 @@
 [contenteditable="true"] {
   outline: none;
   transition: background 0.15s ease;
+  color: #ffffff !important;
 }
 
 [contenteditable="true"]:focus {
   background: rgba(212,175,55,0.08) !important;
   box-shadow: inset 0 0 0 1px rgba(212,175,55,0.4);
+  color: #ffffff !important;
 }
 
 /* Category row */
 .category-row td {
-  background: rgba(74,103,65,0.2);
-  color: #d4af37;
+  background: rgba(74,103,65,0.25);
+  color: #ffd700 !important;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 1px solid rgba(74,103,65,0.4) !important;
 }
 
 /* Total row */
 .total-row td {
-  background: rgba(212,175,55,0.08);
-  color: #d4af37;
+  background: rgba(212,175,55,0.1);
+  color: #ffd700 !important;
   font-family: 'Share Tech Mono', monospace;
-  font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
   border-top: 1px solid rgba(212,175,55,0.3) !important;
 }
 
 /* Grand total */
 .grand-total-row td {
-  background: rgba(212,175,55,0.15);
-  color: #d4af37;
+  background: rgba(212,175,55,0.2);
+  color: #ffd700 !important;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px; font-weight: 600;
+  font-size: 13px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.08em;
-  border-top: 2px solid rgba(212,175,55,0.5) !important;
+  border-top: 2px solid rgba(212,175,55,0.6) !important;
 }
 
 /* Add row button */
@@ -75,62 +109,210 @@
   display: inline-flex; align-items: center; gap: 8px;
   padding: 7px 16px; height: 36px;
   background: transparent;
-  border: 1px solid rgba(212,175,55,0.4);
-  border-radius: 0; color: #d4af37;
+  border: 1px solid rgba(212,175,55,0.5);
+  border-radius: 0; color: #ffd700 !important;
   font-family: 'Share Tech Mono', monospace;
   font-size: 11px; cursor: pointer;
   letter-spacing: 0.1em; text-transform: uppercase;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease; font-weight: 700;
 }
 
 .add-row-btn:hover {
-  background: rgba(212,175,55,0.1);
-  border-color: #d4af37;
-  box-shadow: 0 0 10px rgba(212,175,55,0.2);
+  background: rgba(212,175,55,0.15);
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(212,175,55,0.3);
 }
 
-/* Signature section */
-.sign-section {
-  display: flex; justify-content: space-between;
-  padding: 1.5rem 1.4rem;
+/* Signature section — Horizontal Row (Oderli left, SMR center, Ajutan right) */
+.sign-section, .ttd-section {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  padding: 2.5rem 2rem 1.5rem 2rem !important;
+  margin-top: 2rem !important;
   border-top: 1px solid rgba(74,103,65,0.3);
-  flex-wrap: wrap; gap: 1rem;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-.sign-block {
-  text-align: center; min-width: 140px;
+.sign-block, .ttd-item {
+  flex: 1 !important;
+  max-width: 220px !important;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
 }
 
-.sign-line {
-  height: 1px; background: rgba(74,103,65,0.5);
-  margin-bottom: 6px;
+.sign-line, .ttd-line {
+  width: 100% !important;
+  height: 1.5px !important;
+  background: #ffffff !important;
+  margin-top: 45px !important;
+  margin-bottom: 8px !important;
 }
 
-.sign-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; color: #4a6741;
-  text-transform: uppercase; letter-spacing: 0.1em;
+.sign-label, .ttd-item p {
+  font-family: 'Share Tech Mono', monospace !important;
+  font-size: 13px !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  text-align: center !important;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 /* Column header (editable) */
 .col-header-cell {
   font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; color: #4a6741;
+  font-size: 10px; color: #ffd700 !important;
   text-transform: uppercase; letter-spacing: 0.12em;
+  font-weight: 700;
 }
 
-/* ── PRINT STYLES ── */
+.clickable, span.clickable, th span, td span {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* ── PRINT STYLES — MONOCHROME & LANDSCAPE ── */
 @media print {
-  .penyata-header { display: none !important; }
-  .print-header { display: block !important; text-align: center; margin-bottom: 1rem; }
-  
-  .category-row td { background: #f1f5f9 !important; color: #000 !important; }
-  .total-row td { background: #e2e8f0 !important; color: #000 !important; }
-  .grand-total-row td { background: #e2e8f0 !important; color: #000 !important; font-weight: bold !important; }
-  
-  .sign-section { padding: 1.5rem 0 0 0; }
-  .sign-line { background: #000; }
-  .sign-label { color: #000; }
-  
+  * {
+    color: #000000 !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  body, html, .main-content, .penyata-wrap {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+  }
+
+  .penyata-header {
+    display: block !important;
+    text-align: center !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 0 1.2rem 0 !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .penyata-header h2 {
+    color: #000000 !important;
+    font-size: 14pt !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-bottom: 4px !important;
+    font-family: 'Share Tech Mono', monospace !important;
+  }
+
+  .penyata-header p, #penyata-tarikh-title {
+    color: #000000 !important;
+    font-size: 11pt !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    font-family: 'Share Tech Mono', monospace !important;
+  }
+
+  .print-header { display: none !important; }
+
+  table, table * {
+    color: #000000 !important;
+    background: transparent !important;
+    font-family: 'Share Tech Mono', monospace !important;
+  }
+
+  /* Table cells get borders — SPAN / CLICKABLE DO NOT */
+  th, td,
+  .penyata-wrap table td,
+  .penyata-wrap table th,
+  .penyata-wrap table thead th,
+  .tr-kategori td, .tr-total td, .tr-subtotal td, .tr-jumlah td,
+  .category-row td, .total-row td, .grand-total-row td {
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+  }
+
+  /* Remove any inner boxes around text inside cells */
+  .clickable, span, a, .col-header-cell, .td-nama span, th span, td span {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: #000000 !important;
+  }
+
+  thead th,
+  .penyata-wrap table thead th,
+  .tr-kategori td, .category-row td {
+    background: #e2e8f0 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+
+  .tr-total td, .tr-subtotal td, .total-row td {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+
+  .grand-total-row td, .tr-jumlah td {
+    background: #cbd5e1 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+  }
+
+  /* Signatures in print: 3 side-by-side columns (Oderli, SMR in center, Ajutan) */
+  .sign-section, .ttd-section {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    padding: 2cm 1cm 0 1cm !important;
+    margin-top: 1.5cm !important;
+    border-top: none !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+  }
+
+  .sign-block, .ttd-item {
+    flex: 1 !important;
+    max-width: 200px !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .sign-line, .ttd-line {
+    width: 100% !important;
+    height: 1px !important;
+    border-top: 1.5px solid #000000 !important;
+    background: #000000 !important;
+    margin-top: 55px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .sign-label, .ttd-item p {
+    color: #000000 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    font-size: 11pt !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin: 0 !important;
+    text-shadow: none !important;
+  }
+
   @page { margin: 1.2cm 1cm; size: A4 landscape; }
 }

@@ -409,8 +409,8 @@
             const escapePangkat = (ang.pangkat || '').replace(/'/g, "\\'");
             aksiContent = `
               <div class="action-btn-group">
-                <button type="button" class="btn-hadir" onclick="markHadir(${ang.id})">Berbaris</button>
-                <button type="button" class="btn-tidak-hadir" onclick="bukaTidakHadir(${ang.id}, '${escapeNama}', '${escapePangkat}')">Tidak Hadir</button>
+                <button type="button" class="btn-hadir" onclick="markHadir(${ang.id})"><i class="ti ti-check"></i> BERBARIS</button>
+                <button type="button" class="btn-tidak-hadir" onclick="bukaTidakHadir(${ang.id}, '${escapeNama}', '${escapePangkat}')"><i class="ti ti-x"></i> TIDAK HADIR</button>
               </div>
             `;
           }
