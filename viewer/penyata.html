@@ -9,6 +9,19 @@
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <i class="ti ti-menu-2"></i>
+  </button>
+  <span class="mobile-page-title">Penyata</span>
+</div>
+
+
+
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo-wrap">
@@ -280,6 +293,48 @@
   }
 
   renderPenyata();
+</script>
+
+
+<script>
+  /* ── Burger / Sidebar Toggle ── */
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = sidebar.classList.contains('open');
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  /* Close sidebar when a nav link is clicked on mobile */
+  document.querySelectorAll('.nav-item').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+
+  /* Close on resize to desktop */
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      document.querySelector('.sidebar').classList.remove('open');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
 </script>
 
 </body>

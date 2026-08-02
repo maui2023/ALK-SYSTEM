@@ -9,17 +9,30 @@
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <i class="ti ti-menu-2"></i>
+  </button>
+  <span class="mobile-page-title">Log Aktiviti</span>
+</div>
+
+
+
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-header">
-  <div class="sidebar-logo-wrap">
-    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
-    <div class="sidebar-logo-text">
-      <span class="sidebar-logo-title">E-ALK</span>
-      <span class="sidebar-logo-sub">Admin</span>
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">Admin</span>
+      </div>
     </div>
-  </div>
-</div>  
+  </div>  
   <nav class="sidebar-nav">
     <a href="dashboard.html" class="nav-item">
       <i class="ti ti-layout-dashboard"></i> Laman Utama
@@ -58,16 +71,18 @@
     </div>
   </div>
 
-  <!-- FILTER -->
-  <form id="filter-form" class="filter-bar" onsubmit="event.preventDefault(); renderLogs();">
-    <input type="text" id="cari-input" placeholder="Cari aksi, butiran, username..." />
-    <input type="date" id="tarikh-input" />
-    <button type="submit" style="padding:8px 16px; background:#1a1a2e; border:none; border-radius:8px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
-      Cari
-    </button>
-    <button type="button" onclick="resetFilter()" style="padding:8px 16px; background:#f5f5f5; border:1px solid #e0e0e0; border-radius:8px; color:#666; font-size:13px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
-      Reset
-    </button>
+  <!-- FILTER BAR -->
+  <form id="filter-form" class="filter-bar" onsubmit="event.preventDefault(); currentPage = 1; renderLogs();">
+    <input type="text" id="cari-input" class="filter-input" placeholder="Cari aksi, butiran, username..." />
+    <input type="date" id="tarikh-input" class="filter-input" style="max-width: 180px;" />
+    <select id="per-page-select" class="filter-select" onchange="changePerPage(this.value)">
+      <option value="25" selected>25 per muka surat</option>
+      <option value="10">10 per muka surat</option>
+      <option value="50">50 per muka surat</option>
+      <option value="100">100 per muka surat</option>
+    </select>
+    <button type="submit" class="btn-primary">Cari</button>
+    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
   </form>
 
   <div class="table-card">
@@ -87,6 +102,12 @@
         <!-- Rendered dynamically -->
       </tbody>
     </table>
+
+    <!-- PAGINATION WRAPPER -->
+    <div class="pagination-wrapper" id="pagination-wrapper">
+      <div class="pagination-info" id="pagination-info"></div>
+      <div class="pagination-controls" id="pagination-controls"></div>
+    </div>
   </div>
 
 </div>
@@ -99,9 +120,26 @@
     document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
   }
 
+  let currentPage = 1;
+  let itemsPerPage = 25;
+
+  function changePerPage(val) {
+    itemsPerPage = parseInt(val, 10);
+    currentPage = 1;
+    renderLogs();
+  }
+
   function resetFilter() {
     document.getElementById('cari-input').value = '';
     document.getElementById('tarikh-input').value = '';
+    document.getElementById('per-page-select').value = '25';
+    itemsPerPage = 25;
+    currentPage = 1;
+    renderLogs();
+  }
+
+  function goToPage(pageNum) {
+    currentPage = pageNum;
     renderLogs();
   }
 
@@ -132,33 +170,107 @@
       return true;
     });
 
-    document.getElementById('log-count').textContent = filtered.length;
+    const totalItems = filtered.length;
+    document.getElementById('log-count').textContent = totalItems;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const pagedLogs = filtered.slice(startIndex, endIndex);
+
     const tbody = document.getElementById('log-table-body');
     tbody.innerHTML = '';
 
-    if (filtered.length === 0) {
+    if (totalItems === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align:center; color:#aaa; padding:2rem;">Tiada rekod aktiviti.</td>
+          <td colspan="4" style="text-align:center; color:#94a3b8; padding:2rem; font-weight:600;">Tiada rekod aktiviti dijumpai.</td>
         </tr>
       `;
+      document.getElementById('pagination-info').textContent = 'Menunjukkan 0 daripada 0 rekod';
+      document.getElementById('pagination-controls').innerHTML = '';
       return;
     }
 
-    filtered.forEach(log => {
+    pagedLogs.forEach(log => {
       const formattedDate = new Date(log.created_at).toLocaleString('ms-MY');
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${formattedDate}</td>
-        <td>${log._userName} <span style="color:#aaa; font-size:12px;">(${log._userUsername})</span></td>
+        <td><strong>${log._userName}</strong> <span style="color:#94a3b8; font-size:12px;">(${log._userUsername})</span></td>
         <td><span class="badge-aksi">${log.aksi}</span></td>
         <td>${log.butiran}</td>
       `;
       tbody.appendChild(tr);
     });
+
+    // Pagination Info
+    document.getElementById('pagination-info').innerHTML = `Menunjukkan <span>${startIndex + 1}</span> hingga <span>${endIndex}</span> daripada <span>${totalItems}</span> rekod`;
+
+    // Pagination Controls
+    let controlsHtml = '';
+    
+    controlsHtml += `<button type="button" class="btn-page" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">‹ Sebelumnya</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+        controlsHtml += `<button type="button" class="btn-page ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        controlsHtml += `<span style="color:#64748b; padding:0 4px;">...</span>`;
+      }
+    }
+
+    controlsHtml += `<button type="button" class="btn-page" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Seterusnya ›</button>`;
+
+    document.getElementById('pagination-controls').innerHTML = controlsHtml;
   }
 
   renderLogs();
+</script>
+
+
+<script>
+  /* ── Burger / Sidebar Toggle ── */
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = sidebar.classList.contains('open');
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  /* Close sidebar when a nav link is clicked on mobile */
+  document.querySelectorAll('.nav-item').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+
+  /* Close on resize to desktop */
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      document.querySelector('.sidebar').classList.remove('open');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
 </script>
 
 </body>

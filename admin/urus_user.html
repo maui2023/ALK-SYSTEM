@@ -3,23 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> TETAPAN PENGGUNA | ALK System</title>
+  <title>TETAPAN PENGGUNA | ALK System</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <link rel="stylesheet" href="../css/urus_user.css">
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <i class="ti ti-menu-2"></i>
+  </button>
+  <span class="mobile-page-title">Tetapan Pengguna</span>
+</div>
+
+
+
 <!-- SIDEBAR -->
 <div class="sidebar">
-<div class="sidebar-header">
-  <div class="sidebar-logo-wrap">
-    <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
-    <div class="sidebar-logo-text">
-      <span class="sidebar-logo-title">E-ALK</span>
-      <span class="sidebar-logo-sub">Admin</span>
+  <div class="sidebar-header">
+    <div class="sidebar-logo-wrap">
+      <img src="../image/ALK.png" alt="Logo ALK" class="sidebar-logo">
+      <div class="sidebar-logo-text">
+        <span class="sidebar-logo-title">E-ALK</span>
+        <span class="sidebar-logo-sub">Admin</span>
+      </div>
     </div>
   </div>
-</div>
   <nav class="sidebar-nav">
     <a href="dashboard.html" class="nav-item">
       <i class="ti ti-layout-dashboard"></i> Laman Utama
@@ -64,6 +77,25 @@
   <div id="error-msg" class="error-msg" style="display:none;"></div>
   <div id="success-msg" class="success-msg" style="display:none;"></div>
 
+  <!-- SEARCH & FILTER BAR -->
+  <form id="filter-form" class="search-bar" onsubmit="event.preventDefault(); currentPage = 1; renderUsers();">
+    <input type="text" id="cari-input" placeholder="Cari nama, username, bahagian..." />
+    <select id="role-select">
+      <option value="">Semua Role</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+      <option value="viewer">Viewer</option>
+    </select>
+    <select id="per-page-select" onchange="changePerPage(this.value)">
+      <option value="25" selected>25 per muka surat</option>
+      <option value="10">10 per muka surat</option>
+      <option value="50">50 per muka surat</option>
+      <option value="100">100 per muka surat</option>
+    </select>
+    <button type="submit" class="btn-primary">Cari</button>
+    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
+  </form>
+
   <!-- REQUEST RESET PASSWORD -->
   <div id="request-reset-card" class="table-card" style="display:none;">
     <div class="table-card-header">
@@ -87,7 +119,7 @@
   <!-- SENARAI USER -->
   <div class="table-card">
     <div class="table-card-header">
-      <h2>Senarai Pengguna</h2>
+      <h2>Senarai Pengguna (<span id="total-user-count">0</span>)</h2>
     </div>
     <table>
       <thead>
@@ -103,6 +135,12 @@
         <!-- Rendered dynamically -->
       </tbody>
     </table>
+
+    <!-- PAGINATION WRAPPER -->
+    <div class="pagination-wrapper" id="pagination-wrapper">
+      <div class="pagination-info" id="pagination-info"></div>
+      <div class="pagination-controls" id="pagination-controls"></div>
+    </div>
   </div>
 
 </div>
@@ -152,7 +190,7 @@
 <!-- MODAL EDIT USER -->
 <div class="modal-overlay" id="modal-edit">
   <div class="modal">
-    <h2>Edit User</h2>
+    <h2>✏️ Edit User</h2>
     <form id="form-edit-user">
       <input type="hidden" id="edit-id">
       <div class="field">
@@ -192,6 +230,29 @@
   const currentUser = Auth.requireAuth(['admin']);
   if (currentUser) {
     document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
+  }
+
+  let currentPage = 1;
+  let itemsPerPage = 25;
+
+  function changePerPage(val) {
+    itemsPerPage = parseInt(val, 10);
+    currentPage = 1;
+    renderUsers();
+  }
+
+  function resetFilter() {
+    document.getElementById('cari-input').value = '';
+    document.getElementById('role-select').value = '';
+    document.getElementById('per-page-select').value = '25';
+    itemsPerPage = 25;
+    currentPage = 1;
+    renderUsers();
+  }
+
+  function goToPage(pageNum) {
+    currentPage = pageNum;
+    renderUsers();
   }
 
   function showMessage(type, text) {
@@ -360,7 +421,7 @@
           <td>${targetUser.username}</td>
           <td>${reqDate}</td>
           <td>
-            <button class="btn-success" onclick="selesaiRequest(${req.id}, ${req.user_id}, '${targetUser.username}')">
+            <button class="btn-warning" onclick="selesaiRequest(${req.id}, ${req.user_id}, '${targetUser.username}')">
               Reset Password
             </button>
           </td>
@@ -372,29 +433,137 @@
       reqCard.style.display = 'none';
     }
 
-    // Render Users
+    // Filter Users
+    const cariVal = document.getElementById('cari-input').value.toLowerCase().trim();
+    const roleVal = document.getElementById('role-select').value;
+
+    let filtered = users.filter(u => {
+      if (roleVal && u.role !== roleVal) return false;
+      if (cariVal) {
+        const matchNama = (u.nama || '').toLowerCase().includes(cariVal);
+        const matchUsername = (u.username || '').toLowerCase().includes(cariVal);
+        const matchBahagian = (u.bahagian || '').toLowerCase().includes(cariVal);
+        return matchNama || matchUsername || matchBahagian;
+      }
+      return true;
+    });
+
+    const totalItems = filtered.length;
+    document.getElementById('total-user-count').textContent = totalItems;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const pagedUsers = filtered.slice(startIndex, endIndex);
+
     const userTbody = document.getElementById('user-table-body');
     userTbody.innerHTML = '';
-    users.forEach(u => {
+
+    if (totalItems === 0) {
+      userTbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center; color:#94a3b8; padding:2rem; font-weight:600;">Tiada pengguna dijumpai.</td>
+        </tr>
+      `;
+      document.getElementById('pagination-info').textContent = 'Menunjukkan 0 daripada 0 pengguna';
+      document.getElementById('pagination-controls').innerHTML = '';
+      return;
+    }
+
+    pagedUsers.forEach(u => {
       const isSelf = (u.id === currentUser.id);
       const deleteBtn = isSelf ? '' : `<button class="btn-danger" onclick="padamUser(${u.id}, '${u.username}')">Padam</button>`;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${u.nama}</td>
+        <td><strong>${u.nama}</strong></td>
         <td>${u.username}</td>
-        <td><span class="badge badge-${u.role}">${u.role.toUpperCase()}</span></td>
-        <td>${u.bahagian}</td>
-        <td style="display:flex; gap:6px; flex-wrap:wrap;">
-          <button class="btn-info" onclick="bukaEdit(${u.id})">Edit</button>
-          <button class="btn-warning" onclick="resetPassword(${u.id}, '${u.username}')">Reset Pass</button>
-          ${deleteBtn}
+        <td><span class="badge-${u.role}">${u.role.toUpperCase()}</span></td>
+        <td><span class="badge-bahagian">${u.bahagian}</span></td>
+        <td>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button class="btn-edit" onclick="bukaEdit(${u.id})">Edit</button>
+            <button class="btn-warning" onclick="resetPassword(${u.id}, '${u.username}')">Reset Pass</button>
+            ${deleteBtn}
+          </div>
         </td>
       `;
       userTbody.appendChild(tr);
     });
+
+    // Pagination Info
+    document.getElementById('pagination-info').innerHTML = `Menunjukkan <span>${startIndex + 1}</span> hingga <span>${endIndex}</span> daripada <span>${totalItems}</span> pengguna`;
+
+    // Pagination Controls
+    let controlsHtml = '';
+    
+    controlsHtml += `<button type="button" class="btn-page" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">‹ Sebelumnya</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+        controlsHtml += `<button type="button" class="btn-page ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        controlsHtml += `<span style="color:#64748b; padding:0 4px;">...</span>`;
+      }
+    }
+
+    controlsHtml += `<button type="button" class="btn-page" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Seterusnya ›</button>`;
+
+    document.getElementById('pagination-controls').innerHTML = controlsHtml;
   }
 
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.getElementById('modal-tambah').classList.remove('show');
+      document.getElementById('modal-edit').classList.remove('show');
+    }
+  });
+
   renderUsers();
+</script>
+
+
+<script>
+  /* ── Burger / Sidebar Toggle ── */
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = sidebar.classList.contains('open');
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  /* Close sidebar when a nav link is clicked on mobile */
+  document.querySelectorAll('.nav-item').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+
+  /* Close on resize to desktop */
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      document.querySelector('.sidebar').classList.remove('open');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
 </script>
 
 </body>

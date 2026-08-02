@@ -9,6 +9,19 @@
 </head>
 <body>
 
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="burger-btn" id="burger-btn" onclick="toggleSidebar()" aria-label="Menu">
+    <i class="ti ti-menu-2"></i>
+  </button>
+  <span class="mobile-page-title">Direktori Anggota</span>
+</div>
+
+
+
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="sidebar-header">
@@ -78,12 +91,8 @@
       <option value="PNPL">PNPL</option>
       <option value="AWAM">AWAM</option>
     </select>
-    <button type="submit" style="padding:8px 16px; background:#1a1a2e; border:none; border-radius:8px; color:#fff; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
-      Cari
-    </button>
-    <button type="button" onclick="resetFilter()" style="padding:8px 16px; background:#f5f5f5; border:1px solid #e0e0e0; border-radius:8px; color:#666; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
-      Reset
-    </button>
+    <button type="submit" class="btn-primary">Cari</button>
+    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
   </form>
 
   <div class="table-card">
@@ -165,7 +174,7 @@
 
       <div class="field">
         <label>Gambar Profil (JPG/PNG)</label>
-        <input type="file" id="tambah-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px;" />
+        <input type="file" id="tambah-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:rgba(6,14,28,0.75); border:1px solid rgba(255,255,255,0.14); border-radius:8px; color:#fff;" />
       </div>
 
       <div class="modal-footer">
@@ -237,11 +246,11 @@
 
       <div class="field">
         <label>Tukar Gambar Profil (kosongkan kalau tak nak tukar)</label>
-        <input type="file" id="edit-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:#f8f8f8; border:1px solid #e8e8e8; border-radius:8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px;" />
+        <input type="file" id="edit-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:rgba(6,14,28,0.75); border:1px solid rgba(255,255,255,0.14); border-radius:8px; color:#fff;" />
       </div>
 
       <div class="field" id="buang-gambar-wrap" style="display:none;">
-        <button type="button" onclick="buangGambar()" style="padding:8px 14px; background:#fff0f0; border:1px solid #ffcccc; border-radius:8px; color:#cc3333; font-size:15px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif;">
+        <button type="button" class="btn-secondary" onclick="buangGambar()">
           🗑️ Buang Gambar & Guna Avatar
         </button>
       </div>
@@ -288,7 +297,6 @@
     renderDirektori();
   }
 
-  // Helper file to Base64 data URL
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -298,7 +306,6 @@
     });
   }
 
-  // Handle Add Member
   document.getElementById('form-tambah-anggota').addEventListener('submit', async function(e) {
     e.preventDefault();
     const pangkat = document.getElementById('tambah-pangkat').value.trim();
@@ -349,7 +356,6 @@
     renderDirektori();
   });
 
-  // Edit Modal Launcher
   let currentEditMember = null;
   function bukaEdit(id) {
     const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
@@ -386,7 +392,6 @@
     }
   }
 
-  // Handle Edit Member
   document.getElementById('form-edit-anggota').addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = parseInt(document.getElementById('edit-id').value);
@@ -435,14 +440,12 @@
     }
   });
 
-  // Handle Delete Member
   function padamAnggota(id, nama) {
     if (confirm(`Padam anggota ${nama}? Semua rekod kehadiran akan dipadam sekali.`)) {
       let anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
       anggotaList = anggotaList.filter(a => a.id !== id);
       Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
 
-      // Clean up kehadiran & catatan
       let kehadiranList = Store.get(STORAGE_KEYS.KEHADIRAN, []);
       let catatanList = Store.get(STORAGE_KEYS.CATATAN_TIDAK_HADIR, []);
       const deletedKehIds = kehadiranList.filter(k => k.anggota_id === id).map(k => k.id);
@@ -492,7 +495,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" style="text-align:center; color:#aaa; padding:2rem;">Tiada anggota dijumpai.</td>
+          <td colspan="9" style="text-align:center; color:#94a3b8; padding:2rem; font-weight:600;">Tiada anggota dijumpai.</td>
         </tr>
       `;
       return;
@@ -504,7 +507,7 @@
         avatarHtml = `<img src="${ang.gambar}" class="profil-img" alt="${ang.nama}" onclick="bukaLightbox('${ang.gambar}')">`;
       } else {
         const initial = (ang.nama || 'A').charAt(0).toUpperCase();
-        avatarHtml = `<div class="profil-avatar avatar-${ang.bahagian}">${initial}</div>`;
+        avatarHtml = `<div class="profil-avatar">${initial}</div>`;
       }
 
       const statusBadge = (ang.status === 'aktif') 
@@ -518,14 +521,16 @@
         <td><div class="profil-wrap">${avatarHtml}</div></td>
         <td>${ang.pangkat || '-'}</td>
         <td>${ang.no_anggota || '-'}</td>
-        <td>${ang.nama || '-'}</td>
+        <td><strong>${ang.nama || '-'}</strong></td>
         <td><span class="badge-bahagian">${ang.bahagian}</span></td>
         <td>${ang.jawatan || '-'}</td>
         <td>${ang.no_telefon || '-'}</td>
         <td>${statusBadge}</td>
-        <td style="display:flex; gap:6px;">
-          <button class="btn-warning" onclick="bukaEdit(${ang.id})">Edit</button>
-          <button class="btn-danger" onclick="padamAnggota(${ang.id}, '${escapeNama}')">Padam</button>
+        <td>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn-warning" onclick="bukaEdit(${ang.id})">Edit</button>
+            <button class="btn-danger" onclick="padamAnggota(${ang.id}, '${escapeNama}')">Padam</button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
@@ -541,6 +546,48 @@
   });
 
   renderDirektori();
+</script>
+
+
+<script>
+  /* ── Burger / Sidebar Toggle ── */
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const isOpen = sidebar.classList.contains('open');
+    if (isOpen) {
+      closeSidebar();
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  /* Close sidebar when a nav link is clicked on mobile */
+  document.querySelectorAll('.nav-item').forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) closeSidebar();
+    });
+  });
+
+  /* Close on resize to desktop */
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      document.querySelector('.sidebar').classList.remove('open');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  });
 </script>
 
 </body>
