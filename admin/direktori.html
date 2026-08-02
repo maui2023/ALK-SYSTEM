@@ -79,21 +79,31 @@
   <div id="error-msg" class="error-msg" style="display:none;"></div>
   <div id="success-msg" class="success-msg" style="display:none;"></div>
 
-  <!-- SEARCH & FILTER -->
-  <form id="filter-form" class="search-bar" onsubmit="event.preventDefault(); renderDirektori();">
-    <input type="text" id="cari-input" placeholder="Cari nama, no. anggota, jawatan, pangkat..." />
-    <select id="bahagian-select">
-      <option value="">Semua Bahagian</option>
-      <option value="MARKAS">MARKAS</option>
-      <option value="TADBIR">TADBIR</option>
-      <option value="BLK">BLK</option>
-      <option value="BBK">BBK</option>
-      <option value="PNPL">PNPL</option>
-      <option value="AWAM">AWAM</option>
-    </select>
-    <button type="submit" class="btn-primary">Cari</button>
-    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
-  </form>
+  <!-- SEARCH & FILTER PANEL -->
+  <div class="filter-panel">
+    <div class="filter-panel-row">
+      <div class="filter-field" style="flex:2;">
+        <span class="filter-field-label"><i class="ti ti-search"></i> Carian</span>
+        <input type="text" id="cari-input" placeholder="Nama, no. tentera, pangkat, jawatan..." />
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-building-community"></i> Bahagian</span>
+        <select id="bahagian-select">
+          <option value="">Semua Bahagian</option>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-btn-row" style="margin-top:10px;">
+      <button type="button" class="btn-primary" onclick="renderDirektori()"><i class="ti ti-search"></i> Cari</button>
+      <button type="button" class="btn-secondary" onclick="resetFilter()"><i class="ti ti-refresh"></i> Reset</button>
+    </div>
+  </div>
 
   <div class="table-card">
     <div class="table-card-header">
@@ -103,14 +113,14 @@
     <table>
       <thead>
         <tr>
-          <th>Profil</th>
+          <th class="hide-mobile">Profil</th>
           <th>Pangkat</th>
-          <th>No. Tentera</th>
+          <th class="hide-mobile">No. Tentera</th>
           <th>Nama</th>
           <th>Bahagian</th>
-          <th>Jawatan</th>
-          <th>No. Telefon</th>
-          <th>Status</th>
+          <th class="hide-mobile">Jawatan</th>
+          <th class="hide-mobile">No. Telefon</th>
+          <th class="hide-mobile">Status</th>
           <th>Aksi</th>
         </tr>
       </thead>
@@ -127,27 +137,24 @@
 ========================================================= -->
 <div class="modal-overlay" id="modal-tambah">
   <div class="modal">
-    <h2>➕ Tambah Anggota</h2>
-    <form id="form-tambah-anggota">
+    <h2>+ Tambah Anggota Baru</h2>
+    <form id="form-tambah">
       <div class="field">
         <label>Pangkat</label>
         <input type="text" id="tambah-pangkat" placeholder="Contoh: Leftenan, Sarjan..." required />
       </div>
-
       <div class="field">
-        <label>No. Tentera</label>
+        <label>No. Tentera / Anggota</label>
         <input type="text" id="tambah-no-anggota" required />
       </div>
-
       <div class="field">
         <label>Nama Penuh</label>
         <input type="text" id="tambah-nama" required />
       </div>
-
       <div class="field">
         <label>Bahagian</label>
         <select id="tambah-bahagian" required>
-          <option value="">-- Pilih --</option>
+          <option value="">-- Pilih Bahagian --</option>
           <option value="MARKAS">MARKAS</option>
           <option value="TADBIR">TADBIR</option>
           <option value="BLK">BLK</option>
@@ -156,30 +163,26 @@
           <option value="AWAM">AWAM</option>
         </select>
       </div>
-
       <div class="field">
         <label>Jawatan</label>
         <input type="text" id="tambah-jawatan" />
       </div>
-
       <div class="field">
         <label>No. IC</label>
         <input type="text" id="tambah-no-ic" />
       </div>
-
       <div class="field">
         <label>No. Telefon</label>
         <input type="text" id="tambah-no-telefon" />
       </div>
-
       <div class="field">
-        <label>Gambar Profil (JPG/PNG)</label>
+        <label>Gambar Profil</label>
         <input type="file" id="tambah-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:rgba(6,14,28,0.75); border:1px solid rgba(255,255,255,0.14); border-radius:8px; color:#fff;" />
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-tambah').classList.remove('show')">Batal</button>
         <button type="submit" class="btn-primary">Simpan</button>
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-tambah').classList.remove('show')">Batal</button>
       </div>
     </form>
   </div>
@@ -190,25 +193,22 @@
 ========================================================= -->
 <div class="modal-overlay" id="modal-edit">
   <div class="modal">
-    <h2>✏️ Edit Anggota</h2>
-    <form id="form-edit-anggota">
+    <h2>Edit Maklumat Anggota</h2>
+    <form id="form-edit">
       <input type="hidden" id="edit-id">
 
       <div class="field">
         <label>Pangkat</label>
         <input type="text" id="edit-pangkat" required />
       </div>
-
       <div class="field">
-        <label>No. Tentera</label>
+        <label>No. Tentera / Anggota</label>
         <input type="text" id="edit-no-anggota" required />
       </div>
-
       <div class="field">
         <label>Nama Penuh</label>
         <input type="text" id="edit-nama" required />
       </div>
-
       <div class="field">
         <label>Bahagian</label>
         <select id="edit-bahagian" required>
@@ -220,22 +220,18 @@
           <option value="AWAM">AWAM</option>
         </select>
       </div>
-
       <div class="field">
         <label>Jawatan</label>
         <input type="text" id="edit-jawatan" />
       </div>
-
       <div class="field">
         <label>No. IC</label>
         <input type="text" id="edit-no-ic" />
       </div>
-
       <div class="field">
         <label>No. Telefon</label>
         <input type="text" id="edit-no-telefon" />
       </div>
-
       <div class="field">
         <label>Status</label>
         <select id="edit-status">
@@ -244,20 +240,9 @@
         </select>
       </div>
 
-      <div class="field">
-        <label>Tukar Gambar Profil (kosongkan kalau tak nak tukar)</label>
-        <input type="file" id="edit-gambar" accept="image/jpeg,image/png" style="width:100%; padding:8px; background:rgba(6,14,28,0.75); border:1px solid rgba(255,255,255,0.14); border-radius:8px; color:#fff;" />
-      </div>
-
-      <div class="field" id="buang-gambar-wrap" style="display:none;">
-        <button type="button" class="btn-secondary" onclick="buangGambar()">
-          🗑️ Buang Gambar & Guna Avatar
-        </button>
-      </div>
-
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" onclick="document.getElementById('modal-edit').classList.remove('show')">Batal</button>
         <button type="submit" class="btn-primary">Kemaskini</button>
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-edit').classList.remove('show')">Batal</button>
       </div>
     </form>
   </div>
@@ -277,17 +262,18 @@
     document.getElementById('user-status-badge').innerHTML = `${currentUser.nama}<br>${currentUser.bahagian}`;
   }
 
-  function showMessage(type, text) {
-    const errorEl = document.getElementById('error-msg');
-    const successEl = document.getElementById('success-msg');
+  function showMessage(type, msg) {
+    const errEl = document.getElementById('error-msg');
+    const succEl = document.getElementById('success-msg');
+    errEl.style.display = 'none';
+    succEl.style.display = 'none';
+
     if (type === 'error') {
-      errorEl.textContent = text;
-      errorEl.style.display = 'block';
-      setTimeout(() => { errorEl.style.display = 'none'; }, 4000);
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
     } else {
-      successEl.textContent = text;
-      successEl.style.display = 'block';
-      setTimeout(() => { successEl.style.display = 'none'; }, 4000);
+      succEl.textContent = msg;
+      succEl.style.display = 'block';
     }
   }
 
@@ -297,16 +283,7 @@
     renderDirektori();
   }
 
-  function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  document.getElementById('form-tambah-anggota').addEventListener('submit', async function(e) {
+  document.getElementById('form-tambah').addEventListener('submit', function(e) {
     e.preventDefault();
     const pangkat = document.getElementById('tambah-pangkat').value.trim();
     const noAnggota = document.getElementById('tambah-no-anggota').value.trim();
@@ -315,54 +292,47 @@
     const jawatan = document.getElementById('tambah-jawatan').value.trim();
     const noIc = document.getElementById('tambah-no-ic').value.trim();
     const noTelefon = document.getElementById('tambah-no-telefon').value.trim();
-    const fileInput = document.getElementById('tambah-gambar');
+    const gambarInput = document.getElementById('tambah-gambar');
 
-    const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
-    if (anggotaList.some(a => a.no_anggota.toLowerCase() === noAnggota.toLowerCase())) {
-      showMessage('error', `❌ No. tentera '${noAnggota}' sudah wujud.`);
-      return;
-    }
+    const saveAnggota = (gambarBase64 = null) => {
+      const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
+      const newAng = {
+        id: Store.getNextId(STORAGE_KEYS.ANGGOTA),
+        pangkat,
+        no_anggota: noAnggota,
+        nama,
+        bahagian,
+        jawatan,
+        no_ic: noIc,
+        no_telefon: noTelefon,
+        status: 'aktif',
+        gambar: gambarBase64
+      };
 
-    let gambarBase64 = null;
-    if (fileInput.files && fileInput.files[0]) {
-      try {
-        gambarBase64 = await fileToBase64(fileInput.files[0]);
-      } catch (err) {
-        showMessage('error', '❌ Gagal memuat naik gambar.');
-        return;
-      }
-    }
+      anggotaList.push(newAng);
+      Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
+      Store.addLog(currentUser.id, 'Tambah Anggota', `${pangkat} ${nama} (${bahagian})`);
 
-    const newAnggota = {
-      id: Store.getNextId(STORAGE_KEYS.ANGGOTA),
-      pangkat,
-      no_anggota: noAnggota,
-      nama,
-      bahagian,
-      jawatan,
-      no_ic: noIc,
-      no_telefon: noTelefon,
-      status: 'aktif',
-      gambar: gambarBase64
+      document.getElementById('modal-tambah').classList.remove('show');
+      document.getElementById('form-tambah').reset();
+      showMessage('success', `✅ Anggota ${nama} berjaya ditambah.`);
+      renderDirektori();
     };
 
-    anggotaList.push(newAnggota);
-    Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
-    Store.addLog(currentUser.id, 'Tambah Anggota', `Pangkat: ${pangkat} | No: ${noAnggota} | Nama: ${nama} | Bahagian: ${bahagian}`);
-
-    document.getElementById('modal-tambah').classList.remove('show');
-    document.getElementById('form-tambah-anggota').reset();
-    showMessage('success', `✅ Anggota '${nama}' berjaya ditambah.`);
-    renderDirektori();
+    if (gambarInput.files && gambarInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) { saveAnggota(e.target.result); };
+      reader.readAsDataURL(gambarInput.files[0]);
+    } else {
+      saveAnggota(null);
+    }
   });
 
-  let currentEditMember = null;
   function bukaEdit(id) {
     const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
     const ang = anggotaList.find(a => a.id === id);
     if (!ang) return;
 
-    currentEditMember = ang;
     document.getElementById('edit-id').value = ang.id;
     document.getElementById('edit-pangkat').value = ang.pangkat || '';
     document.getElementById('edit-no-anggota').value = ang.no_anggota || '';
@@ -373,28 +343,12 @@
     document.getElementById('edit-no-telefon').value = ang.no_telefon || '';
     document.getElementById('edit-status').value = ang.status || 'aktif';
 
-    document.getElementById('buang-gambar-wrap').style.display = ang.gambar ? 'block' : 'none';
     document.getElementById('modal-edit').classList.add('show');
   }
 
-  function buangGambar() {
-    if (confirm('Buang gambar dan guna avatar?') && currentEditMember) {
-      const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
-      const ang = anggotaList.find(a => a.id === currentEditMember.id);
-      if (ang) {
-        ang.gambar = null;
-        Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
-        Store.addLog(currentUser.id, 'Buang Gambar', `ID: ${ang.id}`);
-        document.getElementById('buang-gambar-wrap').style.display = 'none';
-        showMessage('success', '✅ Gambar berjaya dibuang.');
-        renderDirektori();
-      }
-    }
-  }
-
-  document.getElementById('form-edit-anggota').addEventListener('submit', async function(e) {
+  document.getElementById('form-edit').addEventListener('submit', function(e) {
     e.preventDefault();
-    const id = parseInt(document.getElementById('edit-id').value);
+    const id = parseInt(document.getElementById('edit-id').value, 10);
     const pangkat = document.getElementById('edit-pangkat').value.trim();
     const noAnggota = document.getElementById('edit-no-anggota').value.trim();
     const nama = document.getElementById('edit-nama').value.trim();
@@ -403,16 +357,10 @@
     const noIc = document.getElementById('edit-no-ic').value.trim();
     const noTelefon = document.getElementById('edit-no-telefon').value.trim();
     const status = document.getElementById('edit-status').value;
-    const fileInput = document.getElementById('edit-gambar');
 
     const anggotaList = Store.get(STORAGE_KEYS.ANGGOTA, []);
-    const duplicate = anggotaList.find(a => a.no_anggota.toLowerCase() === noAnggota.toLowerCase() && a.id !== id);
-    if (duplicate) {
-      showMessage('error', `❌ No. tentera '${noAnggota}' sudah digunakan oleh anggota lain.`);
-      return;
-    }
-
     const ang = anggotaList.find(a => a.id === id);
+
     if (ang) {
       ang.pangkat = pangkat;
       ang.no_anggota = noAnggota;
@@ -423,19 +371,11 @@
       ang.no_telefon = noTelefon;
       ang.status = status;
 
-      if (fileInput.files && fileInput.files[0]) {
-        try {
-          ang.gambar = await fileToBase64(fileInput.files[0]);
-        } catch (err) {
-          showMessage('error', '❌ Gagal memuat naik gambar baharu.');
-          return;
-        }
-      }
-
       Store.set(STORAGE_KEYS.ANGGOTA, anggotaList);
-      Store.addLog(currentUser.id, 'Edit Anggota', `ID: ${id} | Pangkat: ${pangkat} | No: ${noAnggota} | Nama: ${nama}`);
+      Store.addLog(currentUser.id, 'Kemaskini Anggota', `ID: ${id} (${nama})`);
+
       document.getElementById('modal-edit').classList.remove('show');
-      showMessage('success', '✅ Maklumat anggota berjaya dikemaskini.');
+      showMessage('success', `✅ Maklumat ${nama} berjaya dikemaskini.`);
       renderDirektori();
     }
   });
@@ -518,18 +458,18 @@
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><div class="profil-wrap">${avatarHtml}</div></td>
+        <td class="hide-mobile"><div class="profil-wrap">${avatarHtml}</div></td>
         <td>${ang.pangkat || '-'}</td>
-        <td>${ang.no_anggota || '-'}</td>
+        <td class="hide-mobile">${ang.no_anggota || '-'}</td>
         <td><strong>${ang.nama || '-'}</strong></td>
         <td><span class="badge-bahagian">${ang.bahagian}</span></td>
-        <td>${ang.jawatan || '-'}</td>
-        <td>${ang.no_telefon || '-'}</td>
-        <td>${statusBadge}</td>
+        <td class="hide-mobile">${ang.jawatan || '-'}</td>
+        <td class="hide-mobile">${ang.no_telefon || '-'}</td>
+        <td class="hide-mobile">${statusBadge}</td>
         <td>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <button class="btn-warning" onclick="bukaEdit(${ang.id})">Edit</button>
-            <button class="btn-danger" onclick="padamAnggota(${ang.id}, '${escapeNama}')">Padam</button>
+          <div style="display:flex; gap:4px; align-items:center;">
+            <button class="btn-warning" style="padding:0 8px; height:36px;" onclick="bukaEdit(${ang.id})"><i class="ti ti-edit"></i> <span class="hide-mobile">Edit</span></button>
+            <button class="btn-danger" style="padding:0 8px; height:36px;" onclick="padamAnggota(${ang.id}, '${escapeNama}')"><i class="ti ti-trash"></i> <span class="hide-mobile">Padam</span></button>
           </div>
         </td>
       `;

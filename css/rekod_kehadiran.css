@@ -1,446 +1,92 @@
 @import url('admin_dashboard.css');
 
-/* ==========================================================================
-   REKOD KEHADIRAN — GLASSMORPHIC, SOLID & SMART STYLES
-   ========================================================================== */
+/* ── REKOD KEHADIRAN — PAGE SPECIFIC ── */
 
-/* 1. FILTER BAR & SEARCH */
-.filter-bar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 1.8rem;
-  align-items: center;
-  flex-wrap: wrap;
+/* Attendance status colours in table */
+.status-hadir { color: #86efac; }
+.status-tidak-hadir { color: #fca5a5; }
+.status-luar { color: #fcd34d; }
+
+/* Date picker override */
+input[type="date"] {
+  color-scheme: dark;
+  height: 40px;
 }
 
-.filter-input,
-.filter-select {
-  padding: 12px 18px;
-  background: rgba(6, 14, 28, 0.75);
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-md);
-  font-size: 14.5px;
-  font-family: inherit;
-  color: var(--text-primary);
+/* Attendance summary inline badge */
+.count-berbaris { color: #86efac; font-weight: 700; }
+.count-tidak { color: #fca5a5; font-weight: 700; }
+.count-luar { color: #fcd34d; font-weight: 700; }
+
+/* Hide element helper */
+.hide-element { display: none !important; }
+
+/* No-record message */
+.no-record-msg {
+  padding: 2rem; text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: #4a6741;
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+
+/* Select (modal) overrides */
+select {
+  background: #060a04;
+  border: 1px solid rgba(74,103,65,0.5);
+  color: #c8d8c0;
+  font-family: 'Share Tech Mono', monospace;
+  height: 40px;
+  padding: 0 14px;
   outline: none;
-  transition: var(--transition);
-  backdrop-filter: blur(10px);
+  border-radius: 0;
 }
 
-.filter-input {
-  flex: 1;
-  min-width: 250px;
+select:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.15);
 }
 
-.filter-input:focus,
-.filter-select:focus {
-  border-color: var(--gold-primary);
-  background: rgba(8, 18, 36, 0.95);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+/* Form group in modal */
+.form-group { margin-bottom: 1rem; }
+
+.form-group label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: #4a6741;
+  text-transform: uppercase; letter-spacing: 0.15em;
+  display: block; margin-bottom: 6px;
 }
 
-.filter-select option {
-  background: #091326;
-  color: var(--text-primary);
-}
-
-.btn-search {
-  padding: 12px 22px;
-  background: linear-gradient(135deg, #e5c158 0%, #d4af37 40%, #a8831f 100%);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--radius-md);
-  color: #040914;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition-smooth);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.btn-search:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.45);
-}
-
-.btn-reset {
-  padding: 12px 20px;
-  background: rgba(13, 25, 48, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-}
-
-.btn-reset:hover {
-  background: rgba(20, 38, 70, 0.8);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-
-/* 2. TABLE CARD & BADGES */
-.table-card {
-  background: var(--bg-card-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin-bottom: 2rem;
-  box-shadow: var(--glass-shadow);
-}
-
-.table-card-header {
-  padding: 1.2rem 1.6rem;
-  border-bottom: var(--glass-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(6, 14, 28, 0.4);
-}
-
-.table-card-header h2 {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.count-label {
-  font-size: 13px;
-  color: var(--gold-light);
-  font-weight: 600;
-}
-
-.badge-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.badge-stat {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.badge-berbaris {
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  color: #7dd3fc;
-}
-
-.badge-dalam-stat {
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  color: #fcd34d;
-}
-
-.badge-luar-stat {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  color: #86efac;
-}
-
-/* TABLE STYLING */
-table {
+.form-group input, .form-group select, .form-group textarea {
   width: 100%;
-  border-collapse: collapse;
 }
 
-thead th {
-  padding: 14px 18px;
-  text-align: left;
+.form-group textarea {
+  background: #060a04;
+  border: 1px solid rgba(74,103,65,0.5);
+  border-radius: 0;
+  color: #c8d8c0;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 12px;
-  font-weight: 800;
-  color: var(--gold-light);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: rgba(6, 14, 28, 0.6);
-  border-bottom: var(--glass-border);
-}
-
-.th-center {
-  text-align: center;
-}
-
-tbody td {
-  padding: 14px 18px;
-  font-size: 14.5px;
-  color: var(--text-primary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-tbody tr:last-child td {
-  border-bottom: none;
-}
-
-tbody tr:hover {
-  background: rgba(212, 175, 55, 0.08);
-}
-
-/* 3. CELL TYPOGRAPHY & STATUS */
-.bil-text {
-  font-weight: 700;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.nama-text {
-  font-weight: 800;
-  color: var(--text-primary);
-  font-size: 15px;
-}
-
-.pangkat-text {
-  font-size: 12.5px;
-  color: var(--gold-light);
-  font-weight: 600;
-  margin-top: 2px;
-}
-
-.no-anggota-text {
-  font-weight: 700;
-  color: var(--cyan-accent);
-}
-
-.jawatan-text {
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.status-hadir {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  color: #86efac;
-}
-
-.status-tidak-hadir {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 700;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
-}
-
-.status-belum {
-  color: var(--text-subtle);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.empty-dash {
-  color: var(--text-subtle);
-}
-
-/* 4. ACTION BUTTONS IN TABLES */
-.action-btn-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.btn-hadir {
-  padding: 7px 15px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-sm);
-  color: #ffffff;
-  font-size: 12.5px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-}
-
-.btn-hadir:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.45);
-}
-
-.btn-tidak-hadir {
-  padding: 7px 15px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-sm);
-  color: #ffffff;
-  font-size: 12.5px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
-}
-
-.btn-tidak-hadir:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.45);
-}
-
-.label-tidak-berbaris {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 11.5px;
-  font-weight: 700;
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  color: var(--gold-light);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* 5. SUCCESS NOTIFICATION */
-.success-msg {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #86efac;
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  font-size: 14.5px;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.15);
-}
-
-/* 6. MODAL OVERLAY & CARD (HIDDEN BY DEFAULT, SHOW ON .show) */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(4, 9, 20, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  display: none !important;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1.5rem;
-}
-
-.modal-overlay.show {
-  display: flex !important;
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal {
-  background: rgba(10, 20, 38, 0.95);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border-gold);
-  border-radius: var(--radius-xl);
-  padding: 2.5rem 2.2rem;
-  width: 100%;
-  max-width: 520px;
-  box-shadow: var(--glass-shadow);
-  color: var(--text-primary);
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal h2 {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.modal-nama-text {
-  font-size: 15px;
-  color: var(--gold-light);
-  font-weight: 700;
-  margin-bottom: 1.8rem;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal .field {
-  margin-bottom: 1.2rem;
-}
-
-.modal .field label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
-}
-
-.modal .field input,
-.modal .field select,
-.modal .field textarea {
-  width: 100%;
-  padding: 11px 16px;
-  background: rgba(6, 14, 28, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 14.5px;
-  font-family: inherit;
+  padding: 10px 14px;
   outline: none;
-  transition: var(--transition-fast);
+  min-height: 80px;
+  resize: vertical;
+  transition: border-color 0.2s;
 }
 
-.modal .field input:focus,
-.modal .field select:focus,
-.modal .field textarea:focus {
-  border-color: var(--gold-primary);
-  background: rgba(8, 18, 36, 0.98);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+.form-group textarea:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.12);
 }
 
-.modal .field select option {
-  background: #091326;
-  color: var(--text-primary);
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 1.8rem;
-}
-
-.btn-cancel {
-  padding: 12px 20px;
-  background: rgba(13, 25, 48, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: var(--transition);
-}
-
-.btn-cancel:hover {
-  background: rgba(20, 38, 70, 0.8);
-  color: var(--text-primary);
+/* Profil avatar in table */
+.profil-avatar {
+  width: 34px; height: 34px;
+  background: rgba(74,103,65,0.2);
+  border: 1px solid rgba(74,103,65,0.4);
+  border-radius: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px; color: #d4af37;
+  text-transform: uppercase;
 }

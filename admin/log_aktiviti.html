@@ -71,19 +71,32 @@
     </div>
   </div>
 
-  <!-- FILTER BAR -->
-  <form id="filter-form" class="filter-bar" onsubmit="event.preventDefault(); currentPage = 1; renderLogs();">
-    <input type="text" id="cari-input" class="filter-input" placeholder="Cari aksi, butiran, username..." />
-    <input type="date" id="tarikh-input" class="filter-input" style="max-width: 180px;" />
-    <select id="per-page-select" class="filter-select" onchange="changePerPage(this.value)">
-      <option value="25" selected>25 per muka surat</option>
-      <option value="10">10 per muka surat</option>
-      <option value="50">50 per muka surat</option>
-      <option value="100">100 per muka surat</option>
-    </select>
-    <button type="submit" class="btn-primary">Cari</button>
-    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
-  </form>
+  <!-- SEARCH & FILTER PANEL -->
+  <div class="filter-panel">
+    <div class="filter-panel-row">
+      <div class="filter-field" style="flex:2;">
+        <span class="filter-field-label"><i class="ti ti-search"></i> Carian</span>
+        <input type="text" id="cari-input" placeholder="Aksi, butiran, username..." />
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-calendar"></i> Tarikh</span>
+        <input type="date" id="tarikh-input" />
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-list-numbers"></i> Muka Surat</span>
+        <select id="per-page-select" onchange="changePerPage(this.value)">
+          <option value="25" selected>25 per muka surat</option>
+          <option value="10">10 per muka surat</option>
+          <option value="50">50 per muka surat</option>
+          <option value="100">100 per muka surat</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-btn-row" style="margin-top:10px;">
+      <button type="button" class="btn-primary" onclick="currentPage = 1; renderLogs();"><i class="ti ti-search"></i> Cari</button>
+      <button type="button" class="btn-secondary" onclick="resetFilter()"><i class="ti ti-refresh"></i> Reset</button>
+    </div>
+  </div>
 
   <div class="table-card">
     <div class="table-card-header">
@@ -95,7 +108,7 @@
           <th>Tarikh & Masa</th>
           <th>Admin</th>
           <th>Aksi</th>
-          <th>Butiran</th>
+          <th class="hide-mobile">Butiran</th>
         </tr>
       </thead>
       <tbody id="log-table-body">
@@ -200,9 +213,9 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${formattedDate}</td>
-        <td><strong>${log._userName}</strong> <span style="color:#94a3b8; font-size:12px;">(${log._userUsername})</span></td>
+        <td><strong>${log._userName}</strong><br><span style="color:#4a6741;font-size:10px;">(${log._userUsername})</span></td>
         <td><span class="badge-aksi">${log.aksi}</span></td>
-        <td>${log.butiran}</td>
+        <td class="hide-mobile" style="font-size:11px;color:#8a9e82;max-width:180px;word-break:break-word;">${log.butiran}</td>
       `;
       tbody.appendChild(tr);
     });

@@ -1,63 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/*
+ * ALK-SYSTEM — MILITARY LOGIN PAGE
+ * Share Tech Mono + Olive Drab + Gold
+ */
 
-/* ==========================================================================
-   ALK SYSTEM - MODERN CLEAN SPLIT LOGIN THEME (NO CARDS)
-   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 
-:root {
-  /* Dynamic Palette */
-  --bg-deep: #040914;
-  --bg-right-panel: #070f1e;
-  --bg-input-glass: rgba(10, 20, 42, 0.85);
-  --bg-input-focus: rgba(12, 24, 48, 0.98);
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Gold & Accent Tokens */
-  --gold-primary: #d4af37;
-  --gold-light: #f5e4a8;
-  --gold-dark: #aa851d;
-  --gold-glow: rgba(212, 175, 55, 0.35);
-  --cyan-accent: #38bdf8;
+::selection { background: rgba(212,175,55,0.3); color: #fff; }
 
-  /* Solid Typography & Contrast */
-  --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
-
-  /* UI Tokens */
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* ==========================================================================
-   GLOBAL RESET
-   ========================================================================== */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+input:-webkit-autofill, input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0d1108 inset !important;
+  -webkit-text-fill-color: #c8d8c0 !important;
 }
 
 html, body {
   min-height: 100vh;
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-deep);
-  color: var(--text-primary);
+  font-family: 'Share Tech Mono', monospace;
+  background: #060a04;
+  color: #c8d8c0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-body {
-  display: flex;
-  position: relative;
-}
+body { display: flex; position: relative; }
 
-/* ==========================================================================
-   LEFT PANEL — BRANDING & VISUAL IDENTITY (NORMAL DIRECT CONTENT)
-   ========================================================================== */
+/* ── LEFT PANEL ── */
 .left-panel {
   flex: 1;
   position: relative;
@@ -68,492 +36,284 @@ body {
   overflow: hidden;
   min-height: 100vh;
   padding: 3rem 2rem;
-  z-index: 1;
 }
 
 .left-panel .bg-img {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background-image: url('../image/ALK_LOGIN.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.38) contrast(1.1);
+  background-size: cover; background-position: center;
+  filter: brightness(1.0) contrast(1.05);
   transform: scale(1.03);
-  transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 12s ease;
   z-index: 0;
 }
 
-.left-panel:hover .bg-img {
-  transform: scale(1.08);
-}
+.left-panel:hover .bg-img { transform: scale(1.07); }
 
 .left-panel .bg-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg,
-    rgba(4, 9, 20, 0.88) 0%,
-    rgba(10, 24, 46, 0.65) 50%,
-    rgba(4, 9, 20, 0.92) 100%);
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg,
+    rgba(6,10,4,0.15) 0%,
+    rgba(6,10,4,0.35) 100%);
   z-index: 1;
 }
 
-/* Decorative Subtle Pattern */
+/* Tactical grid overlay */
 .left-panel .bg-overlay::after {
   content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.12), transparent 60%),
-    repeating-linear-gradient(-45deg, transparent, transparent 40px, rgba(212, 175, 55, 0.02) 40px, rgba(212, 175, 55, 0.02) 41px);
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,103,65,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,103,65,0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
   pointer-events: none;
 }
 
 .brand-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  max-width: 480px;
-  padding: 1rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  position: relative; z-index: 2;
+  text-align: center; max-width: 460px; padding: 1rem;
 }
 
-/* Clean Logo */
 .brand-logo {
-  width: 160px;
-  max-width: 85%;
-  height: auto;
-  object-fit: contain;
-  margin-bottom: 2rem;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 15px rgba(212, 175, 55, 0.35));
-  animation: floatLogo 5s ease-in-out infinite;
+  width: 150px; max-width: 80%; height: auto;
+  object-fit: contain; margin-bottom: 2rem;
+  filter: drop-shadow(0 0 20px rgba(212,175,55,0.4)) drop-shadow(0 0 4px rgba(0,0,0,0.8));
+  animation: floatLogo 6s ease-in-out infinite;
 }
 
 @keyframes floatLogo {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-7px); }
 }
 
-/* Solid Metallic Gold Title */
 .brand-content h1 {
-  font-size: 42px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #ffffff 0%, #f5e4a8 40%, #d4af37 75%, #ffffff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 38px; font-weight: 400;
+  letter-spacing: 0.08em; margin-bottom: 10px;
+  color: #ffd700;
+  text-shadow: 0 0 30px rgba(212,175,55,0.6), 0 2px 10px rgba(0,0,0,0.9);
+  text-transform: uppercase;
 }
 
 .brand-content p {
-  font-size: 15.5px;
-  color: rgba(200, 220, 240, 0.85);
-  line-height: 1.65;
-  font-weight: 500;
-  margin-bottom: 1.8rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; color: #ffffff; line-height: 1.8;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.8rem;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.8);
 }
 
-/* Smart Divider */
 .brand-divider {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 1.5rem auto;
-  max-width: 280px;
+  display: flex; align-items: center; gap: 14px;
+  margin: 1.5rem auto; max-width: 280px;
 }
 
 .brand-divider span {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.8), transparent);
 }
 
-.brand-divider i {
-  font-size: 14px;
-  color: var(--gold-primary);
-  filter: drop-shadow(0 0 6px var(--gold-glow));
-}
+.brand-divider i { font-size: 14px; color: #ffd700; }
 
-/* Badges & Stats */
 .brand-badges {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
+  display: flex; gap: 8px; justify-content: center;
+  flex-wrap: wrap; margin-top: 1.5rem;
 }
 
 .brand-badge {
-  padding: 6px 15px;
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(212, 175, 55, 0.3);
-  border-radius: 30px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gold-light);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  padding: 5px 14px;
+  background: rgba(6,10,4,0.7);
+  border: 1px solid rgba(163,201,155,0.4);
+  border-radius: 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; font-weight: 600; color: #a3c99b;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 .brand-stats {
-  display: flex;
-  gap: 2.2rem;
-  justify-content: center;
-  margin-top: 2rem;
-  padding-top: 1.8rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex; gap: 2rem; justify-content: center;
+  margin-top: 2rem; padding-top: 1.5rem;
+  border-top: 1px solid rgba(74,103,65,0.3);
 }
 
 .brand-stat-num {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--gold-light);
-  text-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 26px; color: #ffd700;
+  text-shadow: 0 0 16px rgba(212,175,55,0.5);
 }
 
 .brand-stat-label {
-  font-size: 11px;
-  color: var(--text-muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; color: #a3c99b; margin-top: 4px;
+  text-transform: uppercase; letter-spacing: 0.14em;
   font-weight: 600;
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
 }
 
-/* ==========================================================================
-   RIGHT PANEL — CLEAN DIRECT LOGIN FORM (NO CARD BOX)
-   ========================================================================== */
+/* ── RIGHT PANEL ── */
 .right-panel {
-  width: 520px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  width: 480px; min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
   padding: 3rem 2.5rem;
-  position: relative;
-  z-index: 2;
-  background: linear-gradient(180deg, #070f1e 0%, #050d1a 50%, #07101f 100%);
-  border-left: 1px solid rgba(212, 175, 55, 0.15);
+  position: relative; z-index: 2;
+  background: #0d1108;
+  border-left: 2px solid rgba(74,103,65,0.5);
   overflow: hidden;
 }
 
-/* Ambient Radial Glows */
+/* Corner decoration */
 .right-panel::before {
   content: '';
-  position: absolute;
-  top: -100px;
-  right: -100px;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
+  position: absolute; top: 0; left: 0;
+  width: 60px; height: 60px;
+  border-top: 2px solid #d4af37;
+  border-left: 2px solid #d4af37;
   pointer-events: none;
 }
 
 .right-panel::after {
   content: '';
-  position: absolute;
-  bottom: -100px;
-  left: -80px;
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
+  position: absolute; bottom: 0; right: 0;
+  width: 60px; height: 60px;
+  border-bottom: 2px solid #d4af37;
+  border-right: 2px solid #d4af37;
   pointer-events: none;
 }
 
-/* Direct Form Container (No card border/background) */
 .login-inner {
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  z-index: 3;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  animation: fadeSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  width: 100%; max-width: 390px;
+  position: relative; z-index: 3;
+  animation: fadeSlideIn 0.5s ease forwards;
 }
 
 @keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Greeting Section */
-.login-greeting {
-  margin-bottom: 2.2rem;
-  text-align: center;
-}
+.login-greeting { margin-bottom: 2rem; text-align: center; }
 
 .login-greeting h2 {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 24px; font-weight: 400;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;
+  color: #ffffff;
 }
 
 .login-greeting p {
-  font-size: 14.5px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  font-weight: 500;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: #a3c99b; letter-spacing: 0.08em;
+  text-transform: uppercase; font-weight: 600;
 }
 
 .login-greeting-line {
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-  border-radius: 2px;
-  margin: 1.4rem auto 0 auto;
-  width: 75%;
-  box-shadow: 0 0 10px var(--gold-glow);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ffd700, transparent);
+  margin: 1.2rem auto 0; width: 70%;
 }
 
-/* Field Group & Labels */
-.field {
-  margin-bottom: 1.5rem;
-  position: relative;
-}
+.field { margin-bottom: 1.3rem; position: relative; }
 
 .field label {
-  display: block;
-  font-size: 12.5px;
-  color: #8a9bb0;
-  margin-bottom: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: var(--transition-fast);
+  display: block; font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: #a3c99b;
+  margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.15em;
+  transition: color 0.2s ease; font-weight: 700;
 }
 
-.field:focus-within label {
-  color: var(--gold-light);
-  transform: translateX(2px);
+.field:focus-within label { color: #ffd700; }
+
+.field input, .field select {
+  width: 100%; height: 48px; padding: 0 16px;
+  background: #060a04; border: 1px solid rgba(74,103,65,0.5);
+  border-radius: 0; color: #ffffff;
+  font-family: 'Share Tech Mono', monospace; font-size: 13px;
+  outline: none; transition: all 0.2s ease; letter-spacing: 0.04em;
 }
 
-/* Clean Solid Input & Select Fields */
-.field input,
-.field select {
-  width: 100%;
-  height: 52px;
-  padding: 0 18px;
-  background: rgba(10, 20, 45, 0.85);
-  border: 1.5px solid rgba(212, 175, 55, 0.18);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 15px;
-  font-family: inherit;
-  font-weight: 500;
-  outline: none;
-  transition: var(--transition-fast);
+.field input:hover, .field select:hover { border-color: rgba(163,201,155,0.7); }
+
+.field input:focus, .field select:focus {
+  border-color: #ffd700;
+  background: #0d1108;
+  box-shadow: 0 0 0 2px rgba(212,175,55,0.15), 0 0 10px rgba(212,175,55,0.1);
 }
 
-.field input:hover,
-.field select:hover {
-  border-color: rgba(212, 175, 55, 0.35);
-  background: rgba(12, 24, 52, 0.95);
-}
+.field input::placeholder { color: #7da876; opacity: 1; }
 
-.field input:focus,
-.field select:focus {
-  border-color: var(--gold-primary);
-  background: rgba(10, 20, 45, 1);
-  box-shadow: 
-    0 0 0 3px rgba(212, 175, 55, 0.2),
-    0 0 20px rgba(212, 175, 55, 0.1);
-}
+.field select option { background: #0d1108; color: #ffffff; }
 
-.field input::placeholder {
-  color: #3d5068;
-  font-weight: 400;
-}
-
-.field select option {
-  background: #070f1e;
-  color: var(--text-primary);
-  padding: 10px;
-}
-
-/* Custom Select Arrow */
-.select-wrap {
-  position: relative;
-}
-
+.select-wrap { position: relative; }
 .select-wrap::after {
-  content: '';
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid #8a9bb0;
-  border-bottom: 2px solid #8a9bb0;
-  transform: translateY(-65%) rotate(45deg);
-  pointer-events: none;
-  transition: var(--transition-fast);
+  content: '▼'; position: absolute; right: 14px; top: 50%;
+  transform: translateY(-50%); color: #a3c99b;
+  pointer-events: none; font-size: 10px;
 }
+.select-wrap select { appearance: none; -webkit-appearance: none; padding-right: 40px; }
 
-.select-wrap:focus-within::after {
-  border-color: var(--gold-primary);
-  transform: translateY(-35%) rotate(225deg);
-}
-
-.select-wrap select {
-  appearance: none;
-  -webkit-appearance: none;
-  padding-right: 42px;
-}
-
-/* Forgot Password Link */
 .forgot-link {
-  display: inline-block;
-  font-size: 13.5px;
-  color: #8a9bb0;
-  text-decoration: none;
-  margin-bottom: 1.8rem;
-  font-weight: 500;
-  transition: var(--transition-fast);
+  display: inline-block; font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; color: #a3c99b; text-decoration: none;
+  margin-bottom: 1.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: color 0.2s ease; font-weight: 600;
 }
 
-.forgot-link:hover {
-  color: var(--gold-primary);
-  transform: translateX(2px);
-}
+.forgot-link:hover { color: #ffd700; }
 
-/* Error Alert Box */
 .error-msg {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  font-size: 13.5px;
-  margin-bottom: 1.4rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  background: rgba(127,29,29,0.25); border: 1px solid rgba(220,38,38,0.4);
+  border-left: 3px solid #dc2626; color: #fca5a5; border-radius: 0;
+  padding: 10px 14px; font-family: 'Share Tech Mono', monospace; font-size: 11px;
+  margin-bottom: 1rem; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 8px;
 }
 
-/* SOLID CTA BUTTON WITH METALLIC GOLD GLOW */
 .btn-login {
-  width: 100%;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #c9a84c 0%, #e2c06a 40%, #a8873d 100%);
-  border: none;
-  border-radius: var(--radius-md);
-  color: #0c1220;
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  font-family: inherit;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transition: var(--transition-smooth);
-  box-shadow: 
-    0 4px 20px rgba(201, 168, 76, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
+  width: 100%; height: 50px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #c9a84c, #ffd700, #a8831f);
+  border: 1px solid rgba(212,175,55,0.6);
+  border-radius: 0; color: #060a04;
+  font-family: 'Share Tech Mono', monospace; font-size: 14px;
+  font-weight: 700; cursor: pointer; letter-spacing: 0.15em; text-transform: uppercase;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 20px rgba(212,175,55,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+  position: relative; overflow: hidden;
 }
 
 .btn-login::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.6s ease;
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
 }
 
-.btn-login:hover::before {
-  left: 100%;
-}
+.btn-login:hover::before { left: 100%; }
 
 .btn-login:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #d4b05a 0%, #f0ce78 40%, #b8943f 100%);
-  box-shadow: 
-    0 8px 30px rgba(201, 168, 76, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, #ffd700, #f5e4a8, #c9a84c);
+  box-shadow: 0 0 30px rgba(212,175,55,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
-.btn-login:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.3);
-}
+.btn-login:active { transform: translateY(0); }
 
-/* Footer */
 .login-footer {
-  margin-top: 2.5rem;
-  text-align: center;
-  font-size: 12px;
-  color: var(--text-subtle);
-  font-weight: 500;
+  margin-top: 2rem; text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; color: #a3c99b; letter-spacing: 0.1em; text-transform: uppercase;
+  font-weight: 600;
 }
 
-.login-footer span {
-  color: var(--text-muted);
-}
+.login-footer span { color: #ffd700; }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN (TABLETS & MOBILE)
-   ========================================================================== */
+/* ── RESPONSIVE ── */
 @media (max-width: 960px) {
-  body {
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  .left-panel {
-    min-height: 260px;
-    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
-    flex: none;
-  }
-
-  .brand-logo {
-    width: 130px;
-    margin-bottom: 1rem;
-  }
-
-  .brand-content h1 {
-    font-size: 28px;
-  }
-
-  .right-panel {
-    width: 100%;
-    min-height: auto;
-    padding: 2.5rem 1.5rem;
-    border-left: none;
-    border-top: 1px solid rgba(201, 168, 76, 0.15);
-  }
-
-  .login-inner {
-    max-width: 100%;
-  }
+  body { flex-direction: column; min-height: 100vh; }
+  .left-panel { min-height: 240px; padding: 2rem 1.5rem 1.5rem; flex: none; }
+  .brand-logo { width: 110px; margin-bottom: 1rem; }
+  .brand-content h1 { font-size: 26px; }
+  .right-panel { width: 100%; min-height: auto; padding: 2rem 1.5rem; border-left: none; border-top: 2px solid rgba(74,103,65,0.5); }
+  .right-panel::before, .right-panel::after { display: none; }
+  .login-inner { max-width: 100%; }
 }

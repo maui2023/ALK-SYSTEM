@@ -77,24 +77,37 @@
   <div id="error-msg" class="error-msg" style="display:none;"></div>
   <div id="success-msg" class="success-msg" style="display:none;"></div>
 
-  <!-- SEARCH & FILTER BAR -->
-  <form id="filter-form" class="search-bar" onsubmit="event.preventDefault(); currentPage = 1; renderUsers();">
-    <input type="text" id="cari-input" placeholder="Cari nama, username, bahagian..." />
-    <select id="role-select">
-      <option value="">Semua Role</option>
-      <option value="admin">Admin</option>
-      <option value="user">User</option>
-      <option value="viewer">Viewer</option>
-    </select>
-    <select id="per-page-select" onchange="changePerPage(this.value)">
-      <option value="25" selected>25 per muka surat</option>
-      <option value="10">10 per muka surat</option>
-      <option value="50">50 per muka surat</option>
-      <option value="100">100 per muka surat</option>
-    </select>
-    <button type="submit" class="btn-primary">Cari</button>
-    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
-  </form>
+  <!-- SEARCH & FILTER PANEL -->
+  <div class="filter-panel">
+    <div class="filter-panel-row">
+      <div class="filter-field" style="flex:2;">
+        <span class="filter-field-label"><i class="ti ti-search"></i> Carian</span>
+        <input type="text" id="cari-input" placeholder="Nama, username, bahagian..." />
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-user-shield"></i> Peranan</span>
+        <select id="role-select">
+          <option value="">Semua Role</option>
+          <option value="admin">Admin</option>
+          <option value="user">User</option>
+          <option value="viewer">Viewer</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-list-numbers"></i> Muka Surat</span>
+        <select id="per-page-select" onchange="changePerPage(this.value)">
+          <option value="25" selected>25 per muka surat</option>
+          <option value="10">10 per muka surat</option>
+          <option value="50">50 per muka surat</option>
+          <option value="100">100 per muka surat</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-btn-row" style="margin-top:10px;">
+      <button type="button" class="btn-primary" onclick="currentPage = 1; renderUsers();"><i class="ti ti-search"></i> Cari</button>
+      <button type="button" class="btn-secondary" onclick="resetFilter()"><i class="ti ti-refresh"></i> Reset</button>
+    </div>
+  </div>
 
   <!-- REQUEST RESET PASSWORD -->
   <div id="request-reset-card" class="table-card" style="display:none;">

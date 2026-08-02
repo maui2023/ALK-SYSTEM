@@ -64,20 +64,31 @@
     </div>
   </div>
 
-  <form id="search-form" class="search-bar" onsubmit="event.preventDefault(); renderDirektori();">
-    <input type="text" id="cari-input" placeholder="Cari nama, no. anggota, jawatan, pangkat..." />
-    <select id="bahagian-select">
-      <option value="">Semua Bahagian</option>
-      <option value="MARKAS">MARKAS</option>
-      <option value="TADBIR">TADBIR</option>
-      <option value="BLK">BLK</option>
-      <option value="BBK">BBK</option>
-      <option value="PNPL">PNPL</option>
-      <option value="AWAM">AWAM</option>
-    </select>
-    <button type="submit" class="btn-primary">Cari</button>
-    <button type="button" class="btn-secondary" onclick="resetFilter()">Reset</button>
-  </form>
+  <!-- SEARCH & FILTER PANEL -->
+  <div class="filter-panel">
+    <div class="filter-panel-row">
+      <div class="filter-field" style="flex:2;">
+        <span class="filter-field-label"><i class="ti ti-search"></i> Carian</span>
+        <input type="text" id="cari-input" placeholder="Nama, no. tentera, pangkat, jawatan..." />
+      </div>
+      <div class="filter-field">
+        <span class="filter-field-label"><i class="ti ti-building-community"></i> Bahagian</span>
+        <select id="bahagian-select">
+          <option value="">Semua Bahagian</option>
+          <option value="MARKAS">MARKAS</option>
+          <option value="TADBIR">TADBIR</option>
+          <option value="BLK">BLK</option>
+          <option value="BBK">BBK</option>
+          <option value="PNPL">PNPL</option>
+          <option value="AWAM">AWAM</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-btn-row" style="margin-top:10px;">
+      <button type="button" class="btn-primary" onclick="renderDirektori()"><i class="ti ti-search"></i> Cari</button>
+      <button type="button" class="btn-secondary" onclick="resetFilter()"><i class="ti ti-refresh"></i> Reset</button>
+    </div>
+  </div>
 
   <div class="table-card">
     <div class="table-card-header">
@@ -91,9 +102,9 @@
           <th>No. Anggota</th>
           <th>Nama</th>
           <th>Bahagian</th>
-          <th>Jawatan</th>
-          <th>No. Telefon</th>
-          <th>Status</th>
+          <th class="hide-mobile">Jawatan</th>
+          <th class="hide-mobile">No. Telefon</th>
+          <th class="hide-mobile">Status</th>
         </tr>
       </thead>
       <tbody id="anggota-table-body">
@@ -182,9 +193,9 @@
         <td>${ang.no_anggota || '-'}</td>
         <td><strong>${ang.nama || '-'}</strong></td>
         <td><span class="badge-bahagian">${ang.bahagian}</span></td>
-        <td>${ang.jawatan || '-'}</td>
-        <td>${ang.no_telefon || '-'}</td>
-        <td>${statusBadge}</td>
+        <td class="hide-mobile">${ang.jawatan || '-'}</td>
+        <td class="hide-mobile">${ang.no_telefon || '-'}</td>
+        <td class="hide-mobile">${statusBadge}</td>
       `;
       tbody.appendChild(tr);
     });
